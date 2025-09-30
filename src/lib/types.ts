@@ -42,3 +42,7 @@ export type UserProfile = {
   accountNumber?: string;
   photoURL?: string;
 };
+
+export async function updateApplicationStatus(applicationId: string, status: ApplicationStatus): Promise<void> {
+  // Implementation will be in firestore.ts
+}

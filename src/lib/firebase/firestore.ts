@@ -1,6 +1,6 @@
 import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Job, Application, JobStatus, UserProfile } from '@/lib/types';
+import type { Job, Application, JobStatus, UserProfile, ApplicationStatus } from '@/lib/types';
 
 function formatDate(timestamp: Timestamp | Date): string {
     if (!timestamp) return 'Date not set';
@@ -299,6 +299,18 @@ export async function fetchAllApplications(): Promise<Application[]> {
 
   return applications;
 }
+
+/**
+ * Updates the status of a job application.
+ * @param applicationId The ID of the application to update.
+ * @param status The new status.
+ */
+export async function updateApplicationStatus(applicationId: string, status: ApplicationStatus): Promise<void> {
+    if (!applicationId) return;
+    const appDocRef = doc(db, 'applications', applicationId);
+    await updateDoc(appDocRef, { status });
+}
+
 
 /**
  * Fetches a user's profile from the 'users' collection.
