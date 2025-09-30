@@ -37,7 +37,6 @@ export async function fetchJobs(): Promise<Job[]> {
   const jobs: Job[] = jobSnapshot.docs.map((doc) => {
     const data = doc.data();
     
-    // Safely handle payment, which might be a string or number
     let payment = 0;
     const paymentValue = data.totalPay || data.payment;
     if (typeof paymentValue === 'string') {
@@ -53,9 +52,10 @@ export async function fetchJobs(): Promise<Job[]> {
       jobTitle: data.projectName || data.title || 'Untitled Job',
       jobDescription: data.fullDescription || data.jobDescription || 'No description provided.',
       location: data.locationCity || data.location || 'No location specified',
-      date: startDate ? formatDate(startDate) : 'Date not set',
-      time: startDate ? formatTime(startDate) : 'Time not set',
+      date: startDate ? formatDate(startDate) : 'TBD',
+      time: startDate ? formatTime(startDate) : 'N/A',
       payment: payment,
+      status: data.status || 'Available',
     };
   });
 
@@ -89,9 +89,10 @@ export async function fetchJobById(id: string): Promise<Job | null> {
         jobTitle: data.projectName || data.title || 'Untitled Job',
         jobDescription: data.fullDescription || data.jobDescription || 'No description provided.',
         location: data.locationCity || data.location || 'No location specified',
-        date: startDate ? formatDate(startDate) : 'Date not set',
-        time: startDate ? formatTime(startDate) : 'Time not set',
+        date: startDate ? formatDate(startDate) : 'TBD',
+        time: startDate ? formatTime(startDate) : 'N/A',
         payment: payment,
+        status: data.status || 'Available',
      };
   }
   

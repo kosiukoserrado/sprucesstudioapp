@@ -1,4 +1,3 @@
-import type { LucideIcon } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 
 export type Job = {
@@ -6,8 +5,10 @@ export type Job = {
   jobTitle: string;
   jobDescription: string;
   location: string;
-  startDate: Timestamp | Date | string; 
+  date: string;
+  time: string;
   payment: number;
+  status?: string;
 };
 
 export type ApplicationStatus = "Pending" | "Accepted" | "Rejected";
