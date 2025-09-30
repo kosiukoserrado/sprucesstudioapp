@@ -82,6 +82,7 @@ export default function OpportunityDetailPage() {
         <Card>
             <CardHeader>
                 <Skeleton className="h-8 w-2/3" />
+                <Skeleton className="h-5 w-1/3 mt-2" />
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="space-y-2">
@@ -89,7 +90,7 @@ export default function OpportunityDetailPage() {
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-4/5" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                     <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
                     <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
                     <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
@@ -106,21 +107,31 @@ export default function OpportunityDetailPage() {
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>{error} <Link href="/dashboard/opportunities" className="underline">Go back to opportunities</Link>.</AlertDescription>
-      </Alert>
+       <div className="space-y-4">
+        <Button variant="outline" asChild>
+            <Link href="/dashboard/opportunities"><ArrowLeft className="mr-2 h-4 w-4" />Back to Opportunities</Link>
+        </Button>
+        <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </div>
     );
   }
 
   if (!job) {
     return (
-       <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>Job could not be loaded. <Link href="/dashboard/opportunities" className="underline">Go back to opportunities</Link>.</AlertDescription>
-      </Alert>
+      <div className="space-y-4">
+         <Button variant="outline" asChild>
+            <Link href="/dashboard/opportunities"><ArrowLeft className="mr-2 h-4 w-4" />Back to Opportunities</Link>
+        </Button>
+        <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Job Not Found</AlertTitle>
+            <AlertDescription>The job you are looking for does not exist or has been removed.</AlertDescription>
+        </Alert>
+       </div>
     );
   }
 
@@ -132,24 +143,46 @@ export default function OpportunityDetailPage() {
         </Button>
        </div>
 
-      <Card className="bg-card">
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-muted/30">
           <CardTitle className="text-3xl font-headline">{job.jobTitle}</CardTitle>
+          <CardDescription>Job ID: {job.id}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-            <p className="text-muted-foreground">{job.jobDescription}</p>
+        <CardContent className="pt-6 space-y-6">
+            <p className="text-muted-foreground leading-relaxed">{job.jobDescription}</p>
 
-            <div className="grid gap-4 md:grid-cols-2 text-muted-foreground">
-                <div className="flex items-center gap-2"><MapPin className="h-5 w-5" /> <span>{job.location}</span></div>
-                <div className="flex items-center gap-2"><Calendar className="h-5 w-5" /> <span>{job.date}</span></div>
-                <div className="flex items-center gap-2"><Clock className="h-5 w-5" /> <span>{job.time}</span></div>
-                 <div className="flex items-center gap-2 font-semibold text-foreground">
-                    <CircleDollarSign className="h-6 w-6" />
-                    <span>{job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}</span>
+            <div className="grid gap-6 md:grid-cols-2 text-muted-foreground pt-6 border-t">
+                <div className="flex items-start gap-3">
+                    <MapPin className="h-5 w-5 mt-1 shrink-0" /> 
+                    <div>
+                        <span className="font-semibold text-foreground">Location</span>
+                        <p>{job.location}</p>
+                    </div>
+                </div>
+                 <div className="flex items-start gap-3">
+                    <Calendar className="h-5 w-5 mt-1 shrink-0" /> 
+                    <div>
+                        <span className="font-semibold text-foreground">Date</span>
+                        <p>{job.date}</p>
+                    </div>
+                </div>
+                 <div className="flex items-start gap-3">
+                    <Clock className="h-5 w-5 mt-1 shrink-0" /> 
+                    <div>
+                        <span className="font-semibold text-foreground">Time</span>
+                        <p>{job.time}</p>
+                    </div>
+                </div>
+                 <div className="flex items-start gap-3">
+                    <CircleDollarSign className="h-5 w-5 mt-1 shrink-0 text-primary" /> 
+                    <div>
+                        <span className="font-semibold text-foreground">Total Payment</span>
+                        <p className="font-bold text-primary text-lg">{job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}</p>
+                    </div>
                 </div>
             </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="bg-muted/30 p-6">
           <Button size="lg" className="w-full" onClick={handleApply} disabled={applying}>
             {applying ? 'Applying...' : 'Apply for this Job'}
           </Button>
@@ -158,3 +191,5 @@ export default function OpportunityDetailPage() {
     </div>
   );
 }
+
+    
