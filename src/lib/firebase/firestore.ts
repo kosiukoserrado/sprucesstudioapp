@@ -42,14 +42,16 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
     const [hours, minutes] = startTime.split(':').map(Number);
     combinedDateTime = new Date(startDate);
     combinedDateTime.setHours(hours, minutes, 0, 0);
+  } else if (startDate) {
+    combinedDateTime = startDate;
   }
 
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
     ...restJobData,
-    payment: totalPay, // Use totalPay as payment
+    payment: totalPay,
     startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : null,
-    status: adminStage, // Make sure to save the adminStage
+    status: adminStage,
   });
   return docRef.id;
 }
@@ -63,7 +65,7 @@ export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]
   let q = query(jobsCollection);
 
   if (status) {
-    const statusField = 'status'; // The field in Firestore is still 'status'
+    const statusField = 'status'; 
     if (Array.isArray(status)) {
         q = query(jobsCollection, where(statusField, 'in', status));
     } else {
@@ -94,7 +96,7 @@ export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]
       date: startDate ? formatDate(startDate.toDate()) : 'TBD',
       time: startDate ? formatTime(startDate.toDate()) : 'N/A',
       payment: payment,
-      adminStage: data.status || 'Open', // Map 'status' from DB to 'adminStage'
+      adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded,
       assignedTo: data.assignedTo,
       category: data.category,
@@ -204,7 +206,12 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
     combinedDateTime.setHours(hours, minutes, 0, 0);
     updateData.startDate = Timestamp.fromDate(combinedDateTime);
   } else if (startDate) {
-     updateData.startDate = Timestamp.fromDate(startDate);
+     const existingDoc = await fetchJobByIdForEdit(id);
+     const existingTime = existingDoc?.startTime || '00:00';
+     const [hours, minutes] = existingTime.split(':').map(Number);
+     const combinedDateTime = new Date(startDate);
+     combinedDateTime.setHours(hours, minutes, 0, 0);
+     updateData.startDate = Timestamp.fromDate(combinedDateTime);
   }
 
   if (totalPay !== undefined) {
@@ -212,7 +219,7 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
   }
   
   if (adminStage) {
-    updateData.status = adminStage; // Map adminStage back to 'status' in Firestore
+    updateData.status = adminStage;
   }
 
 
