@@ -10,7 +10,18 @@ import type { Job, Application } from '@/lib/types';
 export async function fetchJobs(): Promise<Job[]> {
   const jobsCollection = collection(db, 'jobs');
   const jobSnapshot = await getDocs(jobsCollection);
-  return jobSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
+  return jobSnapshot.docs.map(doc => {
+    const data = doc.data();
+    return { 
+      id: doc.id,
+      jobTitle: data.jobTitle,
+      jobDescription: data.jobDescription,
+      location: data.location,
+      date: data.date,
+      time: data.time,
+      payment: data.payment,
+     } as Job;
+  });
 }
 
 /**
@@ -21,7 +32,16 @@ export async function fetchJobById(id: string): Promise<Job | null> {
   const jobDocRef = doc(db, 'jobs', id);
   const jobSnap = await getDoc(jobDocRef);
   if (jobSnap.exists()) {
-    return { id: jobSnap.id, ...jobSnap.data() } as Job;
+    const data = jobSnap.data();
+    return { 
+        id: jobSnap.id,
+        jobTitle: data.jobTitle,
+        jobDescription: data.jobDescription,
+        location: data.location,
+        date: data.date,
+        time: data.time,
+        payment: data.payment,
+     } as Job;
   }
   return null;
 }

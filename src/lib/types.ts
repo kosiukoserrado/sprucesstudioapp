@@ -2,12 +2,12 @@ import type { LucideIcon } from 'lucide-react';
 
 export type Job = {
   id: string;
-  title: string;
-  postcode: string;
-  dateTime: string;
-  duration: string;
-  pay: number;
-  description: string;
+  jobTitle: string;
+  location: string;
+  date: string;
+  time: string;
+  payment: number;
+  jobDescription: string;
 };
 
 export type ApplicationStatus = "Pending" | "Accepted" | "Rejected";

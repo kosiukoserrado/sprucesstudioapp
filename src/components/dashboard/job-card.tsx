@@ -12,25 +12,25 @@ export function JobCard({ job }: JobCardProps) {
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <CardTitle>{job.title}</CardTitle>
-        <CardDescription>{job.description}</CardDescription>
+        <CardTitle>{job.jobTitle}</CardTitle>
+        <CardDescription>{job.jobDescription}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow space-y-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          <span>{job.postcode}</span>
+          <span>{job.location}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
-          <span>{job.dateTime}</span>
+          <span>{job.date}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
-          <span>{job.duration}</span>
+          <span>{job.time}</span>
         </div>
         <div className="flex items-center gap-2 text-lg font-bold text-primary">
           <CircleDollarSign className="h-5 w-5" />
-          <span>{typeof job.pay === 'number' ? job.pay.toFixed(2) : 'N/A'}</span>
+          <span>{typeof job.payment === 'number' ? job.payment.toFixed(2) : 'N/A'}</span>
         </div>
       </CardContent>
       <CardFooter>

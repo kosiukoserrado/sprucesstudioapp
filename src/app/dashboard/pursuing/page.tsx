@@ -90,7 +90,7 @@ export default function PursuingPage() {
               ))
             ) : (
               applicationsWithJobs.map(({ app, job }) => {
-                const title = job?.title || app.jobTitle || 'Job not found';
+                const title = job?.jobTitle || app.jobTitle || 'Job not found';
                 return (
                   <TableRow key={app.id}>
                     <TableCell className="font-medium">

@@ -91,17 +91,17 @@ export default function DashboardPage() {
                 </div>
             ) : activeJob ? (
               <div className="grid gap-4">
-                <h3 className="text-xl font-semibold">{activeJob.title}</h3>
+                <h3 className="text-xl font-semibold">{activeJob.jobTitle}</h3>
                 <div className="grid sm:grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /> {activeJob.postcode}</div>
-                    <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> {activeJob.dateTime}</div>
-                    <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> {activeJob.duration}</div>
+                    <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /> {activeJob.location}</div>
+                    <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> {activeJob.date}</div>
+                    <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> {activeJob.time}</div>
                     <div className="flex items-center gap-2 font-bold text-primary">
                         <CircleDollarSign className="h-4 w-4" /> 
-                        £{typeof activeJob.pay === 'number' ? activeJob.pay.toFixed(2) : 'N/A'}
+                        £{typeof activeJob.payment === 'number' ? activeJob.payment.toFixed(2) : 'N/A'}
                     </div>
                 </div>
-                <p className="text-sm text-muted-foreground">{activeJob.description}</p>
+                <p className="text-sm text-muted-foreground">{activeJob.jobDescription}</p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg">
@@ -136,7 +136,7 @@ export default function DashboardPage() {
                     <ul className="space-y-2">
                         {recentApplicationsWithJobs.map(item => (
                              <li key={item.app.id} className="flex justify-between items-center text-sm">
-                               <span>{item.job.title}</span>
+                               <span>{item.job.jobTitle}</span>
                                <Badge variant={item.app.status === 'Accepted' ? 'default' : item.app.status === 'Rejected' ? 'destructive' : 'secondary'} className={item.app.status === 'Accepted' ? 'bg-green-600/80 text-white' : ''}>{item.app.status}</Badge>
                              </li>
                         ))}
