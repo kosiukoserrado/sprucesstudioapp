@@ -88,7 +88,7 @@ export default function AdminJobsPage() {
   };
 
 
-    const getStatusVariant = (status: Job['status']) => {
+    const getStatusVariant = (status: Job['adminStage']) => {
         switch (status) {
             case 'Open':
                 return 'secondary';
@@ -127,7 +127,7 @@ export default function AdminJobsPage() {
               <TableHead className="hidden md:table-cell">Location</TableHead>
               <TableHead className="hidden lg:table-cell">Date</TableHead>
                <TableHead className="hidden lg:table-cell">Payment</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Admin Stage</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -157,8 +157,8 @@ export default function AdminJobsPage() {
                      <TableCell className="hidden lg:table-cell">{job.date}</TableCell>
                      <TableCell className="hidden lg:table-cell">${job.payment.toFixed(2)}</TableCell>
                     <TableCell>
-                      <Badge variant={getStatusVariant(job.status)}>
-                        {job.status}
+                      <Badge variant={getStatusVariant(job.adminStage)}>
+                        {job.adminStage}
                       </Badge>
                     </TableCell>
                     <TableCell>

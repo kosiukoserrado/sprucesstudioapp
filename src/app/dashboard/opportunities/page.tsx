@@ -19,7 +19,7 @@ export default function OpportunitiesPage() {
       setLoading(true);
       setError(null);
       try {
-        // Only fetch jobs with "Open" status
+        // Only fetch jobs with "Open" adminStage
         const jobs = await fetchJobs("Open");
         setOpportunities(jobs);
       } catch (error) {

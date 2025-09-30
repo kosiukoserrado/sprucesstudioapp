@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Job } from "@/lib/types";
-import { MapPin, Calendar, CircleDollarSign, CheckCircle } from "lucide-react";
+import { MapPin, Calendar, CircleDollarSign, CheckCircle, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
@@ -10,6 +10,29 @@ interface JobCardProps {
 }
 
 export function JobCard({ job }: JobCardProps) {
+  const getJobStatusVariant = (status: Job['jobStatus']) => {
+    switch (status) {
+        case 'Urgent':
+            return 'destructive';
+        case 'Upcoming':
+            return 'secondary';
+        case 'Available':
+        default:
+            return 'outline';
+    }
+  };
+
+  const getJobStatusIcon = (status: Job['jobStatus']) => {
+    switch(status) {
+      case 'Urgent':
+        return <AlertTriangle className="h-4 w-4 mr-1" />;
+      case 'Available':
+      case 'Upcoming':
+      default:
+        return <CheckCircle className="h-4 w-4 mr-1" />;
+    }
+  }
+  
   return (
     <Card className="flex flex-col justify-between bg-card">
       <CardHeader>
@@ -31,9 +54,9 @@ export function JobCard({ job }: JobCardProps) {
            </Badge>
         </div>
          <div className="flex items-center gap-2">
-             <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 mr-1" />
-                {job.status || 'Available'}
+             <Badge variant={getJobStatusVariant(job.jobStatus)} className={job.jobStatus === 'Available' ? "text-green-600 border-green-200 bg-green-50" : ""}>
+                {getJobStatusIcon(job.jobStatus)}
+                {job.jobStatus || 'Available'}
              </Badge>
         </div>
       </CardContent>

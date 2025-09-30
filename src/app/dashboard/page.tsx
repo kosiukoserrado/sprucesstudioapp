@@ -82,7 +82,7 @@ export default function DashboardPage() {
         {/* My Current Job */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>My Current Job</CardTitle>
+            <CardTitle>Happening Now</CardTitle>
             <CardDescription>Your current or next job.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -98,14 +98,21 @@ export default function DashboardPage() {
                      <Skeleton className="h-10 w-32" />
                 </div>
             ) : activeJob ? (
-              <div className="grid gap-2">
-                <h3 className="text-xl font-semibold">{activeJob.jobTitle}</h3>
-                <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> {activeJob.location}</p>
-                <div className="grid sm:grid-cols-2 gap-4 text-sm pt-2">
-                    <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> {activeJob.date}</div>
-                    <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> {activeJob.time}</div>
+              <div className="grid gap-4">
+                <div>
+                    <h3 className="text-xl font-semibold">{activeJob.jobTitle}</h3>
                 </div>
-                <div className="font-bold text-lg pt-2 text-primary">${typeof activeJob.payment === 'number' && activeJob.payment > 0 ? activeJob.payment.toFixed(2) : 'N/A'}</div>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                    <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> {activeJob.location}</p>
+                    <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> {activeJob.date} at {activeJob.time}</div>
+                    <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> {activeJob.duration ? `${activeJob.duration} days` : 'N/A'}</div>
+                    <div className="font-bold text-primary flex items-center gap-2"><CircleDollarSign className="h-4 w-4" /> ${activeJob.payment > 0 ? activeJob.payment.toFixed(2) : 'N/A'}</div>
+                </div>
+                <div className="pt-2">
+                    <Button asChild variant="link" className="p-0 h-auto">
+                        <Link href={`/dashboard/opportunities/${activeJob.id}`}>View Full Details →</Link>
+                    </Button>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg">

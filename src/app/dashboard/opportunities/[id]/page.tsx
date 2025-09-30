@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Clock, MapPin, Calendar, CircleDollarSign, AlertTriangle, ArrowLeft, Users, Briefcase } from "lucide-react";
+import { Clock, MapPin, Calendar, CircleDollarSign, AlertTriangle, ArrowLeft, Users, Briefcase, Layers, Maximize } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -159,8 +159,9 @@ export default function OpportunityDetailPage() {
         <CardHeader className="bg-muted/50 p-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div>
-                    <Badge variant="secondary" className="mb-2">{job.status}</Badge>
+                    {job.jobStatus && <Badge variant={job.jobStatus === 'Urgent' ? 'destructive' : 'secondary'} className="mb-2">{job.jobStatus}</Badge>}
                     <CardTitle className="text-3xl font-headline">{job.jobTitle}</CardTitle>
+                    {job.category && <CardDescription className="flex items-center gap-2 pt-2"><Layers className="w-4 h-4" />{job.category}</CardDescription>}
                 </div>
                 <div className="flex-shrink-0">
                     <Badge variant="outline" className="text-lg bg-lime-100 border-lime-300 text-lime-900 py-2 px-4">
@@ -199,6 +200,10 @@ export default function OpportunityDetailPage() {
                             <span className="font-semibold text-foreground w-24">Time:</span>
                             <span>{job.time}</span>
                         </div>
+                         {job.duration && <div className="flex items-start gap-3">
+                            <span className="font-semibold text-foreground w-24">Duration:</span>
+                            <span>{job.duration} days</span>
+                        </div>}
                     </div>
                 </div>
 
@@ -211,6 +216,15 @@ export default function OpportunityDetailPage() {
                         </div>
                     </div>
                 </div>
+                 {job.areaM2 && <div className="space-y-4">
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><Maximize className="w-5 h-5 text-primary"/> Area</h3>
+                    <div className="text-muted-foreground grid gap-2">
+                        <div className="flex items-start gap-3">
+                            <span className="font-semibold text-foreground w-24">Size:</span>
+                            <span>{job.areaM2} m²</span>
+                        </div>
+                    </div>
+                </div>}
             </div>
         </CardContent>
         <CardFooter className="bg-muted/30 p-6">

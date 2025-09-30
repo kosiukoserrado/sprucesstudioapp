@@ -1,6 +1,6 @@
 import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc, serverTimestamp, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Job, Application, JobStatus, UserProfile, ApplicationStatus } from '@/lib/types';
+import type { Job, Application, JobStatus, UserProfile, ApplicationStatus, JobCategory, PublicJobStatus } from '@/lib/types';
 
 function formatDate(timestamp: Timestamp | Date): string {
     if (!timestamp) return 'Date not set';
@@ -22,10 +22,11 @@ function formatTime(timestamp: Timestamp | Date): string {
     }).format(date);
 }
 
-type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'payment'>> & {
+type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'payment' | 'adminStage'>> & {
   startDate?: Date;
   startTime?: string;
   totalPay?: number;
+  adminStage?: JobStatus;
 };
 
 
@@ -34,7 +35,7 @@ type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'p
  * @param jobData - The data for the new job.
  */
 export async function createJob(jobData: CreateJobData): Promise<string> {
-  const { startDate, startTime, ...restJobData } = jobData;
+  const { startDate, startTime, totalPay, ...restJobData } = jobData;
   
   let combinedDateTime: Date | null = null;
   if (startDate && startTime) {
@@ -46,8 +47,9 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
     ...restJobData,
-    payment: jobData.totalPay, // Use totalPay as payment
+    payment: totalPay, // Use totalPay as payment
     startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : null,
+    status: jobData.adminStage, // Make sure to save the adminStage
   });
   return docRef.id;
 }
@@ -61,10 +63,11 @@ export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]
   let q = query(jobsCollection);
 
   if (status) {
+    const statusField = 'status'; // The field in Firestore is still 'status'
     if (Array.isArray(status)) {
-        q = query(jobsCollection, where('status', 'in', status));
+        q = query(jobsCollection, where(statusField, 'in', status));
     } else {
-        q = query(jobsCollection, where('status', '==', status));
+        q = query(jobsCollection, where(statusField, '==', status));
     }
   }
 
@@ -91,9 +94,13 @@ export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]
       date: startDate ? formatDate(startDate.toDate()) : 'TBD',
       time: startDate ? formatTime(startDate.toDate()) : 'N/A',
       payment: payment,
-      status: data.status || 'Open',
+      adminStage: data.status || 'Open', // Map 'status' from DB to 'adminStage'
       cleanersNeeded: data.cleanersNeeded,
       assignedTo: data.assignedTo,
+      category: data.category,
+      duration: data.duration,
+      areaM2: data.areaM2,
+      jobStatus: data.jobStatus,
     };
   });
 
@@ -130,9 +137,13 @@ export async function fetchJobById(id: string): Promise<Job | null> {
         date: startDate ? formatDate(startDate.toDate()) : 'TBD',
         time: startDate ? formatTime(startDate.toDate()) : 'TBD',
         payment: payment,
-        status: data.status || 'Open',
+        adminStage: data.status || 'Open',
         cleanersNeeded: data.cleanersNeeded,
         assignedTo: data.assignedTo,
+        category: data.category,
+        duration: data.duration,
+        areaM2: data.areaM2,
+        jobStatus: data.jobStatus,
      };
   }
   
@@ -150,7 +161,7 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
     const startDate = data.startDate?.toDate(); // Convert Timestamp to Date
     
     let payment = 0;
-    const paymentValue = data.payment || data.totalPay || data.paymentPerCleaner || 0;
+    const paymentValue = data.payment || data.totalPay || 0;
      if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
     } else if (typeof paymentValue === 'number') {
@@ -164,10 +175,14 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
       location: data.location || '',
       totalPay: payment,
       paymentPerCleaner: data.paymentPerCleaner || undefined,
-      status: data.status || 'Open',
+      adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded || 1,
       startDate: startDate,
       startTime: startDate ? `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '09:00',
+      category: data.category,
+      duration: data.duration,
+      areaM2: data.areaM2,
+      jobStatus: data.jobStatus,
     };
   }
   return null;
@@ -179,7 +194,7 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
  * @param jobData - The data to update.
  */
 export async function updateJob(id: string, jobData: Partial<CreateJobData>): Promise<void> {
-  const { startDate, startTime, ...restJobData } = jobData;
+  const { startDate, startTime, totalPay, adminStage, ...restJobData } = jobData;
   
   let updateData: any = { ...restJobData };
 
@@ -192,8 +207,12 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
      updateData.startDate = Timestamp.fromDate(startDate);
   }
 
-  if (jobData.totalPay) {
-      updateData.payment = jobData.totalPay;
+  if (totalPay !== undefined) {
+      updateData.payment = totalPay;
+  }
+  
+  if (adminStage) {
+    updateData.status = adminStage; // Map adminStage back to 'status' in Firestore
   }
 
 

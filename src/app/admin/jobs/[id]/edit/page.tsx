@@ -38,20 +38,24 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { fetchJobByIdForEdit, updateJob } from "@/lib/firebase/firestore";
-import type { Job } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z.object({
-  jobTitle: z.string().min(1, "Job title is required"),
-  jobDescription: z.string().min(1, "Description is required"),
-  location: z.string().min(1, "Location is required"),
-  totalPay: z.coerce.number().min(0, "Payment must be a positive number"),
+  jobTitle: z.string().optional(),
+  jobDescription: z.string().optional(),
+  location: z.string().optional(),
+  totalPay: z.coerce.number().optional(),
   paymentPerCleaner: z.coerce.number().optional(),
-  status: z.enum(["Open", "Closed", "In progress", "Completed"]),
-  cleanersNeeded: z.coerce.number().int().min(1, "At least one cleaner is needed"),
-  startDate: z.date({ required_error: "A start date is required." }),
-  startTime: z.string().min(1, "Start time is required"),
+  adminStage: z.enum(["Open", "Closed", "In progress", "Completed"]).optional(),
+  cleanersNeeded: z.coerce.number().int().optional(),
+  startDate: z.date().optional(),
+  startTime: z.string().optional(),
+  category: z.enum(["Refurbishment", "Fitout", "Builders Clean", "Sparkle Clean", "Final Clean"]).optional(),
+  duration: z.string().optional(),
+  areaM2: z.coerce.number().optional(),
+  jobStatus: z.enum(["Available", "Upcoming", "Urgent"]).optional(),
 });
+
 
 type EditJobFormValues = z.infer<typeof formSchema>;
 
@@ -77,7 +81,7 @@ export default function EditJobPage() {
         if (jobData) {
           form.reset({
             ...jobData,
-            totalPay: jobData.payment, // Correct mapping
+            totalPay: jobData.totalPay,
           });
         } else {
           toast({ variant: "destructive", title: "Job not found" });
@@ -204,6 +208,59 @@ export default function EditJobPage() {
                         </FormItem>
                     )}
                 />
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                     <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Category</FormLabel>
+                             <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Refurbishment">Refurbishment</SelectItem>
+                                    <SelectItem value="Fitout">Fitout</SelectItem>
+                                    <SelectItem value="Builders Clean">Builders Clean</SelectItem>
+                                    <SelectItem value="Sparkle Clean">Sparkle Clean</SelectItem>
+                                    <SelectItem value="Final Clean">Final Clean</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="duration"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Duration (days)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="e.g., 3" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="areaM2"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Area (m2)</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="e.g., 500" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <FormField
@@ -303,10 +360,35 @@ export default function EditJobPage() {
                     />
                     <FormField
                         control={form.control}
-                        name="status"
+                        name="jobStatus"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Status</FormLabel>
+                            <FormLabel>Job Status (for Cleaners)</FormLabel>
+                             <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a status" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Available">Available</SelectItem>
+                                    <SelectItem value="Upcoming">Upcoming</SelectItem>
+                                    <SelectItem value="Urgent">Urgent</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                     <FormField
+                        control={form.control}
+                        name="adminStage"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Admin Stage</FormLabel>
                              <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                 <SelectTrigger>
@@ -320,6 +402,7 @@ export default function EditJobPage() {
                                     <SelectItem value="Closed">Closed</SelectItem>
                                 </SelectContent>
                             </Select>
+                             <FormDescription>Internal status for admins.</FormDescription>
                             <FormMessage />
                             </FormItem>
                         )}
