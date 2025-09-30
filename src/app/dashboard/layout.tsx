@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { User, Bell, Loader2 } from "lucide-react";
+import { LogOut, Bell, Loader2 } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -70,7 +70,7 @@ export default function DashboardLayout({
                 <span className="text-xs text-sidebar-foreground/70">{user.email}</span>
            </div>
            <Button variant="ghost" size="icon" onClick={signOut} className="ml-auto group-data-[collapsible=icon]:hidden">
-              <User className="h-5 w-5" />
+              <LogOut className="h-5 w-5" />
            </Button>
         </SidebarFooter>
       </Sidebar>
