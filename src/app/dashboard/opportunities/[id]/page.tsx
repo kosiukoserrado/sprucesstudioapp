@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,10 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Clock, MapPin, Calendar, CircleDollarSign, AlertTriangle, ArrowLeft } from "lucide-react";
+import { Clock, MapPin, Calendar, CircleDollarSign, AlertTriangle, ArrowLeft, Users, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { Badge } from "@/components/ui/badge";
 
 export default function OpportunityDetailPage() {
   const params = useParams();
@@ -84,17 +86,27 @@ export default function OpportunityDetailPage() {
                 <Skeleton className="h-8 w-2/3" />
                 <Skeleton className="h-5 w-1/3 mt-2" />
             </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="space-y-2">
+            <CardContent className="space-y-8">
+                 <div className="space-y-2">
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-4/5" />
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                    <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
-                    <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
-                    <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
-                    <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
+                    <div>
+                        <Skeleton className="h-6 w-32 mb-4" />
+                        <div className="space-y-4">
+                           <div className="flex items-center gap-3"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
+                           <div className="flex items-center gap-3"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
+                        </div>
+                    </div>
+                     <div>
+                        <Skeleton className="h-6 w-32 mb-4" />
+                        <div className="space-y-4">
+                           <div className="flex items-center gap-3"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
+                           <div className="flex items-center gap-3"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
+                        </div>
+                    </div>
                 </div>
             </CardContent>
             <CardFooter>
@@ -144,47 +156,66 @@ export default function OpportunityDetailPage() {
        </div>
 
       <Card className="overflow-hidden">
-        <CardHeader className="bg-muted/30">
-          <CardTitle className="text-3xl font-headline">{job.jobTitle}</CardTitle>
-          <CardDescription>Job ID: {job.id}</CardDescription>
+        <CardHeader className="bg-muted/50 p-6">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div>
+                    <Badge variant="secondary" className="mb-2">{job.status}</Badge>
+                    <CardTitle className="text-3xl font-headline">{job.jobTitle}</CardTitle>
+                </div>
+                <div className="flex-shrink-0">
+                    <Badge variant="outline" className="text-lg bg-lime-100 border-lime-300 text-lime-900 py-2 px-4">
+                        <CircleDollarSign className="h-5 w-5 mr-2" /> 
+                        {job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}
+                    </Badge>
+                </div>
+            </div>
         </CardHeader>
-        <CardContent className="pt-6 space-y-6">
-            <p className="text-muted-foreground leading-relaxed">{job.jobDescription}</p>
+        <CardContent className="pt-6 space-y-8">
+            <div>
+                <h2 className="font-semibold text-xl mb-4 flex items-center gap-2"><Briefcase className="w-5 h-5 text-primary"/> Job Overview</h2>
+                <p className="text-muted-foreground leading-relaxed">{job.jobDescription}</p>
+            </div>
 
-            <div className="grid gap-6 md:grid-cols-2 text-muted-foreground pt-6 border-t">
-                <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 mt-1 shrink-0" /> 
-                    <div>
-                        <span className="font-semibold text-foreground">Location</span>
-                        <p>{job.location}</p>
+            <div className="grid gap-8 md:grid-cols-2 pt-6 border-t">
+                
+                <div className="space-y-4">
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><MapPin className="w-5 h-5 text-primary"/> Location</h3>
+                    <div className="text-muted-foreground grid gap-2">
+                        <div className="flex items-start gap-3">
+                            <span className="font-semibold text-foreground w-24">City:</span>
+                            <span>{job.location}</span>
+                        </div>
                     </div>
                 </div>
-                 <div className="flex items-start gap-3">
-                    <Calendar className="h-5 w-5 mt-1 shrink-0" /> 
-                    <div>
-                        <span className="font-semibold text-foreground">Date</span>
-                        <p>{job.date}</p>
+
+                <div className="space-y-4">
+                     <h3 className="font-semibold text-lg flex items-center gap-2"><Calendar className="w-5 h-5 text-primary"/> Schedule</h3>
+                    <div className="text-muted-foreground grid gap-2">
+                        <div className="flex items-start gap-3">
+                            <span className="font-semibold text-foreground w-24">Date:</span>
+                            <span>{job.date}</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="font-semibold text-foreground w-24">Time:</span>
+                            <span>{job.time}</span>
+                        </div>
                     </div>
                 </div>
-                 <div className="flex items-start gap-3">
-                    <Clock className="h-5 w-5 mt-1 shrink-0" /> 
-                    <div>
-                        <span className="font-semibold text-foreground">Time</span>
-                        <p>{job.time}</p>
-                    </div>
-                </div>
-                 <div className="flex items-start gap-3">
-                    <CircleDollarSign className="h-5 w-5 mt-1 shrink-0 text-primary" /> 
-                    <div>
-                        <span className="font-semibold text-foreground">Total Payment</span>
-                        <p className="font-bold text-primary text-lg">{job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}</p>
+
+                 <div className="space-y-4">
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><Users className="w-5 h-5 text-primary"/> Team</h3>
+                    <div className="text-muted-foreground grid gap-2">
+                        <div className="flex items-start gap-3">
+                            <span className="font-semibold text-foreground w-24">Cleaners:</span>
+                            <span>{job.cleanersNeeded || 1} needed</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </CardContent>
         <CardFooter className="bg-muted/30 p-6">
-          <Button size="lg" className="w-full" onClick={handleApply} disabled={applying}>
-            {applying ? 'Applying...' : 'Apply for this Job'}
+          <Button size="lg" className="w-full text-base" onClick={handleApply} disabled={applying}>
+            {applying ? 'Submitting Application...' : 'Apply for this Job'}
           </Button>
         </CardFooter>
       </Card>
