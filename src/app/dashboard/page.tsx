@@ -74,7 +74,7 @@ export default function DashboardPage() {
   return (
     <div className="grid gap-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">Here's what's happening today.</p>
       </div>
 
@@ -109,7 +109,7 @@ export default function DashboardPage() {
                         ${typeof activeJob.payment === 'number' && activeJob.payment > 0 ? activeJob.payment.toFixed(2) : 'N/A'}
                     </div>
                 </div>
-                <p className="text-sm text-muted-foreground">{activeJob.jobDescription}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{activeJob.jobDescription}</p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg">
@@ -144,7 +144,7 @@ export default function DashboardPage() {
                     <ul className="space-y-2">
                         {recentApplicationsWithJobs.map(({ app, job }) => (
                              <li key={app.id} className="flex justify-between items-center text-sm">
-                               <span>{job?.jobTitle || app.jobTitle}</span>
+                               <span className="truncate pr-2">{job?.jobTitle || app.jobTitle}</span>
                                <Badge variant={app.status === 'Accepted' ? 'default' : app.status === 'Rejected' ? 'destructive' : 'secondary'} className={app.status === 'Accepted' ? 'bg-green-600/80 text-white' : ''}>{app.status}</Badge>
                              </li>
                         ))}

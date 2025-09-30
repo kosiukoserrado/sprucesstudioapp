@@ -42,16 +42,16 @@ import type { Job } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z.object({
-  jobTitle: z.string().optional(),
-  jobDescription: z.string().optional(),
-  location: z.string().optional(),
-  totalPay: z.coerce.number().optional(),
+  jobTitle: z.string().min(1, "Job title is required"),
+  jobDescription: z.string().min(1, "Description is required"),
+  location: z.string().min(1, "Location is required"),
+  totalPay: z.coerce.number().min(0, "Payment must be a positive number"),
   paymentPerCleaner: z.coerce.number().optional(),
-  status: z.enum(["Open", "Closed", "In progress", "Completed"]).optional(),
-  cleanersNeeded: z.coerce.number().int().optional(),
+  status: z.enum(["Open", "Closed", "In progress", "Completed"]),
+  cleanersNeeded: z.coerce.number().int().min(1, "At least one cleaner is needed"),
   areaM2: z.coerce.number().optional(),
-  startDate: z.date().optional(),
-  startTime: z.string().optional(),
+  startDate: z.date({ required_error: "A start date is required." }),
+  startTime: z.string().min(1, "Start time is required"),
 });
 
 type EditJobFormValues = z.infer<typeof formSchema>;
@@ -145,9 +145,9 @@ export default function EditJobPage() {
 
   return (
     <div className="space-y-8">
-       <div className="flex items-center justify-between">
+       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-2">
-                <h1 className="font-headline text-3xl font-bold tracking-tight">Edit Job</h1>
+                <h1 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">Edit Job</h1>
                 <p className="text-muted-foreground">Update the details for this job listing.</p>
             </div>
              <Button variant="outline" asChild>
@@ -229,6 +229,7 @@ export default function EditJobPage() {
                             <FormControl>
                                 <Input type="number" step="0.01" {...field} />
                             </FormControl>
+                             <FormDescription>Optional, for your reference.</FormDescription>
                             <FormMessage />
                             </FormItem>
                         )}

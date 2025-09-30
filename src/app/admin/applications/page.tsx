@@ -105,7 +105,7 @@ export default function AdminApplicationsPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Application Management</h1>
+        <h1 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">Application Management</h1>
         <p className="text-muted-foreground">Review and manage job applications from cleaners for each job.</p>
       </div>
 
@@ -117,12 +117,12 @@ export default function AdminApplicationsPage() {
         <Accordion type="multiple" className="w-full space-y-4">
           {Object.values(groupedApplications).map(({ job, applications }) => (
             <AccordionItem value={job.id} key={job.id} className="border-b-0">
-                <AccordionTrigger className="flex items-center justify-between w-full p-4 font-medium text-left bg-card border rounded-lg hover:no-underline hover:bg-muted/50 [&[data-state=open]]:rounded-b-none">
-                   <div className="flex items-center gap-4">
+                <AccordionTrigger className="flex flex-col md:flex-row items-start md:items-center justify-between w-full p-4 font-medium text-left bg-card border rounded-lg hover:no-underline hover:bg-muted/50 [&[data-state=open]]:rounded-b-none text-base">
+                   <div className="flex items-center gap-4 mb-2 md:mb-0">
                      <span className="font-semibold">{job.jobTitle}</span>
                      <Badge variant="outline">{job.status}</Badge>
                    </div>
-                   <span>{applications.length} Applicant(s)</span>
+                   <span className="text-sm text-muted-foreground md:text-base">{applications.length} Applicant(s)</span>
                 </AccordionTrigger>
               <AccordionContent className="p-0 border border-t-0 rounded-lg rounded-t-none">
                  <div className="border-t">
@@ -138,7 +138,10 @@ export default function AdminApplicationsPage() {
                     <TableBody>
                         {applications.map((app) => (
                         <TableRow key={app.id}>
-                            <TableCell className="font-medium">{app.userName || 'N/A'}</TableCell>
+                            <TableCell className="font-medium">
+                                <div className="font-semibold">{app.userName || 'N/A'}</div>
+                                <div className="text-xs text-muted-foreground md:hidden">{app.appliedAt}</div>
+                            </TableCell>
                             <TableCell className="hidden md:table-cell">{app.appliedAt}</TableCell>
                             <TableCell>
                                 <Badge variant={app.status === "Rejected" ? "destructive" : app.status === "Accepted" ? "default" : "secondary"}>

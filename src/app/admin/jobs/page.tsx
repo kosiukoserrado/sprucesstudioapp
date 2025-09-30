@@ -106,9 +106,9 @@ export default function AdminJobsPage() {
   return (
     <>
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-2">
-            <h1 className="font-headline text-3xl font-bold tracking-tight">Job Management</h1>
+            <h1 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">Job Management</h1>
             <p className="text-muted-foreground">Create, edit, and manage all job listings.</p>
         </div>
         <Button asChild>
@@ -148,7 +148,10 @@ export default function AdminJobsPage() {
             ) : (
               jobs.map((job) => (
                   <TableRow key={job.id}>
-                    <TableCell className="font-medium">{job.jobTitle}</TableCell>
+                    <TableCell className="font-medium">
+                        <div className="font-semibold">{job.jobTitle}</div>
+                        <div className="text-xs text-muted-foreground md:hidden">{job.location} - {job.date}</div>
+                    </TableCell>
                     <TableCell className="hidden md:table-cell">{job.location}</TableCell>
                      <TableCell className="hidden lg:table-cell">{job.date}</TableCell>
                      <TableCell className="hidden lg:table-cell">${job.payment.toFixed(2)}</TableCell>

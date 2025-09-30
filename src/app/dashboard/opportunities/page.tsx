@@ -35,7 +35,7 @@ export default function OpportunitiesPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Job Opportunities</h1>
+        <h1 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">Job Opportunities</h1>
         <p className="text-muted-foreground">Browse and apply for jobs available in your area.</p>
       </div>
       
@@ -45,7 +45,7 @@ export default function OpportunitiesPage() {
       </div>
 
       {loading ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="flex flex-col space-y-3">
               <Skeleton className="h-[280px] w-full rounded-xl" />
@@ -63,7 +63,7 @@ export default function OpportunitiesPage() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : opportunities.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {opportunities.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}

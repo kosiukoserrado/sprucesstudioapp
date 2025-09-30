@@ -50,7 +50,7 @@ export default function AdminLayout({
   const isAdmin = user.email === 'kosiserrado@gmail.com';
   if (!isAdmin) {
     return (
-        <div className="flex h-screen w-full items-center justify-center flex-col gap-4">
+        <div className="flex h-screen w-full items-center justify-center flex-col gap-4 p-4 text-center">
             <h1 className="text-2xl font-bold">Access Denied</h1>
             <p>You do not have permission to view this page.</p>
             <Button onClick={() => router.push('/dashboard')}>Go to Dashboard</Button>

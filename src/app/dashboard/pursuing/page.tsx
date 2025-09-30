@@ -61,7 +61,7 @@ export default function PursuingPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl font-bold tracking-tight">My Applications</h1>
+        <h1 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">My Applications</h1>
         <p className="text-muted-foreground">Track the status of all your job applications.</p>
       </div>
 

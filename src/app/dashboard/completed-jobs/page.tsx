@@ -40,7 +40,7 @@ export default function CompletedJobsPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Completed Jobs</h1>
+        <h1 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">Completed Jobs</h1>
         <p className="text-muted-foreground">A record of all the jobs you've successfully completed.</p>
       </div>
       

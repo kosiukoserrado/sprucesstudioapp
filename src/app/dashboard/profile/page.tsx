@@ -105,9 +105,9 @@ export default function ProfilePage() {
 
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="space-y-2">
-                    <h1 className="font-headline text-3xl font-bold tracking-tight">Your Profile</h1>
+                    <h1 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">Your Profile</h1>
                     <p className="text-muted-foreground">Keep your information up-to-date to find the best job matches.</p>
                 </div>
                  <Button variant="destructive-outline" onClick={signOut}>
@@ -123,12 +123,12 @@ export default function ProfilePage() {
                             <CardTitle>Profile Picture</CardTitle>
                         </div>
                     </CardHeader>
-                    <CardContent className="flex items-center gap-6">
+                    <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                          <Avatar className="h-20 w-20">
                             <AvatarImage src={user?.photoURL || `https://i.pravatar.cc/150?u=${user?.email}`} />
                             <AvatarFallback>{getInitials(fullName)}</AvatarFallback>
                         </Avatar>
-                        <div className="space-y-2">
+                        <div className="space-y-2 w-full">
                             <Label htmlFor="picture">Upload New Profile Picture</Label>
                             <Input id="picture" type="file" className="max-w-sm" />
                             <p className="text-xs text-muted-foreground">Recommended: Square image (e.g., 300x300px)</p>
