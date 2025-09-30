@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { fetchJobById } from "@/lib/firebase/firestore";
+import { fetchJobById, applyForJob } from "@/lib/firebase/firestore";
 import type { Job } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -11,13 +11,15 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Clock, MapPin, Calendar, CircleDollarSign, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-
+import { useAuth } from "@/hooks/use-auth";
 
 export default function OpportunityDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const { user } = useAuth();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
+  const [applying, setApplying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -49,12 +51,24 @@ export default function OpportunityDetailPage() {
     getJob();
   }, [id]);
 
-  const handleApply = () => {
-    // This is a placeholder for the actual application logic
-    toast({
-        title: "Application Sent!",
-        description: `You've successfully applied for ${job?.jobTitle}.`,
-    });
+  const handleApply = async () => {
+    if (!user || !job) return;
+    setApplying(true);
+    try {
+        await applyForJob(job.id, user.uid, user.displayName || user.email || 'Anonymous', job.jobTitle);
+        toast({
+            title: "Application Sent!",
+            description: `You've successfully applied for ${job?.jobTitle}.`,
+        });
+    } catch (error: any) {
+         toast({
+            variant: "destructive",
+            title: "Application Failed",
+            description: error.message || "There was a problem submitting your application.",
+        });
+    } finally {
+        setApplying(false);
+    }
   };
 
   if (loading) {
@@ -113,20 +127,20 @@ export default function OpportunityDetailPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-3xl font-headline">{job.jobTitle}</CardTitle>
-          <CardDescription className="text-base">{job.jobDescription}</CardDescription>
+          <CardDescription className="text-base pt-2">{job.jobDescription}</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-            <div className="flex items-center gap-2"><MapPin className="h-5 w-5 text-muted-foreground" /> <span>{job.location}</span></div>
-            <div className="flex items-center gap-2"><Calendar className="h-5 w-5 text-muted-foreground" /> <span>{job.date}</span></div>
-            <div className="flex items-center gap-2"><Clock className="h-5 w-5 text-muted-foreground" /> <span>{job.time}</span></div>
-             <div className="flex items-center gap-2 text-xl font-bold text-primary">
+        <CardContent className="grid gap-4 md:grid-cols-2 pt-4">
+            <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-5 w-5" /> <span>{job.location}</span></div>
+            <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-5 w-5" /> <span>{job.date}</span></div>
+            <div className="flex items-center gap-2 text-muted-foreground"><Clock className="h-5 w-5" /> <span>{job.time}</span></div>
+             <div className="flex items-center gap-2 font-bold text-primary text-lg">
                 <CircleDollarSign className="h-6 w-6" /> 
-                <span>£{typeof job.payment === 'number' && job.payment > 0 ? job.payment.toFixed(2) : 'N/A'}</span>
+                <span>£{job.payment > 0 ? job.payment.toFixed(2) : 'N/A'}</span>
             </div>
         </CardContent>
         <CardFooter>
-          <Button size="lg" className="w-full" onClick={handleApply}>
-            Apply for this Job
+          <Button size="lg" className="w-full" onClick={handleApply} disabled={applying}>
+            {applying ? 'Applying...' : 'Apply for this Job'}
           </Button>
         </CardFooter>
       </Card>

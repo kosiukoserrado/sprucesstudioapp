@@ -1,4 +1,4 @@
-import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Job, Application, JobStatus } from '@/lib/types';
 
@@ -22,10 +22,11 @@ function formatTime(timestamp: Timestamp | Date): string {
     }).format(date);
 }
 
-type CreateJobData = Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'status'> & {
-  startDate: Date;
-  startTime: string;
-  status: JobStatus;
+type CreateJobData = Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'payment'> & {
+  startDate?: Date;
+  startTime?: string;
+  status?: JobStatus;
+  totalPay?: number;
 };
 
 /**
@@ -131,7 +132,7 @@ export async function fetchJobById(id: string): Promise<Job | null> {
         jobDescription: data.jobDescription || data.fullDescription || 'No description provided.',
         location: data.location || data.locationCity || 'No location specified',
         date: startDate ? formatDate(startDate.toDate()) : 'TBD',
-        time: startDate ? formatTime(startDate.toDate()) : 'N/A',
+        time: startDate ? formatTime(startDate.toDate()) : 'TBD',
         payment: payment,
         status: data.status || 'Open',
         cleanersNeeded: data.cleanersNeeded,
@@ -204,6 +205,37 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
 
   const jobDocRef = doc(db, 'jobs', id);
   await updateDoc(jobDocRef, updateData);
+}
+
+
+/**
+ * Creates a job application.
+ * @param jobId - The ID of the job being applied for.
+ * @param userId - The UID of the user applying.
+ * @param userName - The name of the user applying.
+ * @param jobTitle - The title of the job.
+ */
+export async function applyForJob(jobId: string, userId: string, userName: string, jobTitle: string) {
+  // Check if the user has already applied for this job
+  const q = query(
+    collection(db, 'applications'),
+    where('jobId', '==', jobId),
+    where('userId', '==', userId)
+  );
+  const querySnapshot = await getDocs(q);
+  if (!querySnapshot.empty) {
+    throw new Error("You have already applied for this job.");
+  }
+
+  // Create new application
+  await addDoc(collection(db, 'applications'), {
+    jobId,
+    userId,
+    userName,
+    jobTitle,
+    status: 'Pending',
+    appliedAt: serverTimestamp(),
+  });
 }
 
 
