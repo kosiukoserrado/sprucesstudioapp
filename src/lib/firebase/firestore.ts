@@ -231,7 +231,7 @@ export async function applyForJob(jobId: string, userId: string, userName: strin
   await addDoc(collection(db, 'applications'), {
     jobId,
     userId,
-    userName,
+    userName: userName || 'Anonymous',
     jobTitle,
     status: 'Pending',
     appliedAt: serverTimestamp(),
