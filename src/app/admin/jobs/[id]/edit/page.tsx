@@ -42,20 +42,16 @@ import type { Job } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z.object({
-  jobTitle: z.string().min(5, "Title must be at least 5 characters long."),
-  jobDescription: z.string().min(20, "Description must be at least 20 characters long."),
-  location: z.string().min(2, "Location is required."),
-  totalPay: z.coerce.number().positive("Total payment must be a positive number."),
-  paymentPerCleaner: z.coerce.number().positive("Payment per cleaner must be a positive number.").optional(),
-  status: z.enum(["Available", "Urgent", "Upcoming"]),
-  cleanersNeeded: z.coerce.number().int().min(1, "At least one cleaner is needed."),
-  areaM2: z.coerce.number().positive("Area must be a positive number.").optional(),
-  startDate: z.date({
-    required_error: "A start date is required.",
-  }),
-  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: "Invalid time format. Please use HH:mm.",
-  }),
+  jobTitle: z.string().optional(),
+  jobDescription: z.string().optional(),
+  location: z.string().optional(),
+  totalPay: z.coerce.number().optional(),
+  paymentPerCleaner: z.coerce.number().optional(),
+  status: z.enum(["Available", "Urgent", "Upcoming"]).optional(),
+  cleanersNeeded: z.coerce.number().int().optional(),
+  areaM2: z.coerce.number().optional(),
+  startDate: z.date().optional(),
+  startTime: z.string().optional(),
 });
 
 type EditJobFormValues = z.infer<typeof formSchema>;
