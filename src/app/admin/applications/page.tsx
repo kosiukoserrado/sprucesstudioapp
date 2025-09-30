@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -10,16 +11,38 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fetchAllApplications, fetchJobById } from "@/lib/firebase/firestore";
+import type { Application, Job } from "@/lib/types";
+
+type ApplicationWithJob = {
+  app: Application;
+  job: Job | null;
+};
 
 export default function AdminApplicationsPage() {
-  // This is a placeholder page.
-  // In the future, we will fetch and display actual application data.
-  const loading = true; 
-  const applications = [
-    { id: '1', jobTitle: 'Post-Construction Clean', applicant: 'John Doe', status: 'Pending', date: '2024-07-28' },
-    { id: '2', jobTitle: 'Regular Office Maintenance', applicant: 'Jane Smith', status: 'Accepted', date: '2024-07-27' },
-    { id: '3', jobTitle: 'Deep Clean for New Tenant', applicant: 'Alex Johnson', status: 'Rejected', date: '2024-07-26' },
-  ];
+  const [applications, setApplications] = useState<ApplicationWithJob[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getApplications = async () => {
+      setLoading(true);
+      try {
+        const fetchedApplications = await fetchAllApplications();
+        const applicationsWithJobs = await Promise.all(
+          fetchedApplications.map(async (app) => {
+            const job = await fetchJobById(app.jobId);
+            return { app, job };
+          })
+        );
+        setApplications(applicationsWithJobs);
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getApplications();
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -49,11 +72,11 @@ export default function AdminApplicationsPage() {
                 </TableRow>
               ))
             ) : (
-              applications.map((app) => (
+              applications.map(({ app, job }) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium">{app.jobTitle}</TableCell>
-                  <TableCell className="hidden md:table-cell">{app.applicant}</TableCell>
-                  <TableCell className="hidden lg:table-cell">{app.date}</TableCell>
+                  <TableCell className="font-medium">{job?.jobTitle || 'N/A'}</TableCell>
+                  <TableCell className="hidden md:table-cell">{app.userName || 'N/A'}</TableCell>
+                  <TableCell className="hidden lg:table-cell">{app.appliedAt}</TableCell>
                   <TableCell>
                      <Badge variant={app.status === "Rejected" ? "destructive" : app.status === "Accepted" ? "default" : "secondary"}>
                         {app.status}

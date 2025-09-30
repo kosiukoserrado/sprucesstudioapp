@@ -76,8 +76,8 @@ export async function fetchJobs(): Promise<Job[]> {
       jobTitle: data.jobTitle || data.projectName || data.title || 'Untitled Job',
       jobDescription: data.jobDescription || data.fullDescription || 'No description provided.',
       location: data.location || data.locationCity || 'No location specified',
-      date: startDate ? formatDate(startDate) : 'TBD',
-      time: startDate ? formatTime(startDate) : 'N/A',
+      date: startDate ? formatDate(startDate.toDate()) : 'TBD',
+      time: startDate ? formatTime(startDate.toDate()) : 'N/A',
       payment: payment,
       status: data.status || 'Available',
       cleanersNeeded: data.cleanersNeeded,
@@ -115,8 +115,8 @@ export async function fetchJobById(id: string): Promise<Job | null> {
         jobTitle: data.jobTitle || data.projectName || data.title || 'Untitled Job',
         jobDescription: data.jobDescription || data.fullDescription || 'No description provided.',
         location: data.location || data.locationCity || 'No location specified',
-        date: startDate ? formatDate(startDate) : 'TBD',
-        time: startDate ? formatTime(startDate) : 'N/A',
+        date: startDate ? formatDate(startDate.toDate()) : 'TBD',
+        time: startDate ? formatTime(startDate.toDate()) : 'N/A',
         payment: payment,
         status: data.status || 'Available',
         cleanersNeeded: data.cleanersNeeded,
@@ -137,12 +137,20 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
     const data = jobSnap.data();
     const startDate = data.startDate?.toDate(); // Convert Timestamp to Date
     
+    let payment = 0;
+    const paymentValue = data.totalPay || data.paymentPerCleaner || 0;
+     if (typeof paymentValue === 'string') {
+        payment = parseFloat(paymentValue) || 0;
+    } else if (typeof paymentValue === 'number') {
+        payment = paymentValue;
+    }
+    
     return {
       id: jobSnap.id,
       jobTitle: data.jobTitle || data.projectName || data.title || '',
       jobDescription: data.jobDescription || data.fullDescription || '',
       location: data.location || data.locationCity || '',
-      payment: data.totalPay || 0, // This will be mapped to totalPay in the form
+      totalPay: payment,
       paymentPerCleaner: data.paymentPerCleaner || undefined,
       status: data.status || 'Available',
       cleanersNeeded: data.cleanersNeeded || 1,
@@ -203,6 +211,36 @@ export async function fetchApplicationsByUserId(userId: string): Promise<Applica
       status: data.status || "Pending",
       jobTitle: data.jobTitle || 'Untitled Job',
       appliedAt: appliedAt instanceof Timestamp ? appliedAt.toDate().toLocaleDateString() : 'N/A',
+      userName: data.userName || 'N/A'
+    };
+  });
+
+  return applications;
+}
+
+/**
+ * Fetches all applications from the 'applications' collection for the admin.
+ */
+export async function fetchAllApplications(): Promise<Application[]> {
+  const applicationsCollection = collection(db, 'applications');
+  const appSnapshot = await getDocs(applicationsCollection);
+
+  if (appSnapshot.empty) {
+    return [];
+  }
+
+  const applications: Application[] = appSnapshot.docs.map(doc => {
+    const data = doc.data();
+    const appliedAt = data.appliedAt;
+
+    return { 
+      id: doc.id, 
+      userId: data.userId,
+      jobId: data.jobId,
+      status: data.status || "Pending",
+      jobTitle: data.jobTitle || 'Untitled Job',
+      appliedAt: appliedAt instanceof Timestamp ? appliedAt.toDate().toLocaleDateString() : 'N/A',
+      userName: data.userName || 'N/A'
     };
   });
 

@@ -22,4 +22,5 @@ export type Application = {
   appliedAt: string;
   status: ApplicationStatus;
   jobTitle?: string;
+  userName?: string;
 };
