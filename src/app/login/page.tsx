@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LifeBuoy, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { Slider } from '@/components/ui/slider';
@@ -81,7 +81,7 @@ export default function LoginPage() {
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[400px] gap-6">
           <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold">Welcome</h1>
+            <h1 className="text-3xl font-bold font-headline">Welcome</h1>
             <p className="text-balance text-muted-foreground">
               Enter your credentials to access your cleaner dashboard
             </p>
@@ -195,8 +195,7 @@ export default function LoginPage() {
                 data-ai-hint="person cleaning"
             />
             <div className="absolute inset-0 bg-zinc-900/60 rounded-lg flex flex-col items-center justify-center text-white p-8 text-center">
-                 <LifeBuoy className="w-16 h-16 text-primary mb-4" />
-                 <h2 className="text-4xl font-bold mb-2">SprucesApp</h2>
+                 <h2 className="text-5xl font-bold mb-2 font-headline">spruces.</h2>
                  <p className="text-xl">The all-in-one platform for professional cleaners.</p>
             </div>
         </div>

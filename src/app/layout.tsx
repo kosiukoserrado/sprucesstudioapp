@@ -1,13 +1,23 @@
 import type { Metadata } from 'next';
 import { Toaster } from "@/components/ui/toaster";
-import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/hooks/use-auth';
 import './globals.css';
+import { Belleza, Alegreya } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const belleza = Belleza({
+  subsets: ['latin'],
+  variable: '--font-headline',
+  weight: '400',
+});
+
+const alegreya = Alegreya({
+  subsets: ['latin'],
+  variable: '--font-body',
+});
+
 
 export const metadata: Metadata = {
-  title: 'SprucesApp',
+  title: 'spruces.',
   description: 'Your portal for managing cleaning jobs.',
 };
 
@@ -18,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans ${inter.variable} antialiased`}>
+      <body className={`${belleza.variable} ${alegreya.variable} antialiased`}>
         <AuthProvider>
           {children}
           <Toaster />

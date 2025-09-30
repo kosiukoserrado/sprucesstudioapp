@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { User, Bell, LifeBuoy, Loader2 } from "lucide-react";
+import { User, Bell, Loader2 } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -64,9 +64,8 @@ export default function AdminLayout({
       <Sidebar>
         <SidebarHeader>
           <Link href="/admin" className="flex items-center gap-2" prefetch={false}>
-            <LifeBuoy className="w-8 h-8 text-primary" />
-            <h2 className="font-bold text-2xl text-foreground group-data-[collapsible=icon]:hidden">
-              CodeSpruce Admin
+            <h2 className="font-bold text-2xl text-foreground group-data-[collapsible=icon]:hidden font-headline">
+              spruces.
             </h2>
           </Link>
         </SidebarHeader>
