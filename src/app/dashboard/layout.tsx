@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { User, Bell, LifeBuoy } from "lucide-react";
+import { User, Bell, LifeBuoy, Loader2 } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -16,6 +16,7 @@ import { SidebarNav } from "@/components/dashboard/sidebar-nav";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function DashboardLayout({
   children,
@@ -25,19 +26,25 @@ export default function DashboardLayout({
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
 
-  if (loading) {
-    return <div>Loading...</div>; // Or a proper loading skeleton
-  }
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
 
-  if (!user) {
-    router.push('/login');
-    return null;
-  }
 
   const getInitials = (email: string | null | undefined) => {
     if (!email) return "AD";
     return email.substring(0, 2).toUpperCase();
   };
+
+  if (loading || !user) {
+    return (
+       <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
 
   return (
