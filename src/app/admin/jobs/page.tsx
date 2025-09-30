@@ -88,8 +88,8 @@ export default function AdminJobsPage() {
   };
 
 
-    const getStatusVariant = (status: Job['status']) => {
-        switch (status) {
+    const getAdminStageVariant = (adminStage: Job['adminStage']) => {
+        switch (adminStage) {
             case 'Open':
                 return 'secondary';
             case 'In progress':
@@ -127,7 +127,7 @@ export default function AdminJobsPage() {
               <TableHead className="hidden md:table-cell">Location</TableHead>
               <TableHead className="hidden lg:table-cell">Date</TableHead>
                <TableHead className="hidden lg:table-cell">Payment</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Admin Stage</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -137,7 +137,7 @@ export default function AdminJobsPage() {
             {loading ? (
               [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
-                  <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-full max-w-xs" /></TableCell>
                   <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-24" /></TableCell>
                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-5 w-24" /></TableCell>
                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-5 w-16" /></TableCell>
@@ -150,14 +150,15 @@ export default function AdminJobsPage() {
                   <TableRow key={job.id}>
                     <TableCell className="font-medium">
                         <div className="font-semibold">{job.jobTitle}</div>
-                        <div className="text-xs text-muted-foreground md:hidden">{job.location} - {job.date}</div>
+                        <div className="text-xs text-muted-foreground md:hidden">{job.location}</div>
+                        <div className="text-xs text-muted-foreground md:hidden mt-1">{job.date}</div>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{job.location}</TableCell>
                      <TableCell className="hidden lg:table-cell">{job.date}</TableCell>
                      <TableCell className="hidden lg:table-cell">${job.payment.toFixed(2)}</TableCell>
                     <TableCell>
-                      <Badge variant={getStatusVariant(job.status)}>
-                        {job.status}
+                      <Badge variant={getAdminStageVariant(job.adminStage)}>
+                        {job.adminStage}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -219,3 +220,5 @@ export default function AdminJobsPage() {
     </>
   );
 }
+
+    

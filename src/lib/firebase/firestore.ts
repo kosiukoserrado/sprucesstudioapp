@@ -22,12 +22,12 @@ function formatTime(timestamp: Timestamp | Date): string {
     }).format(date);
 }
 
-type CreateJobData = Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'payment'> & {
+type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'payment'>> & {
   startDate?: Date;
   startTime?: string;
-  status?: JobStatus;
   totalPay?: number;
 };
+
 
 /**
  * Creates a new job in the 'jobs' collection.
@@ -46,10 +46,6 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
     ...restJobData,
-     jobTitle: restJobData.jobTitle,
-    jobDescription: restJobData.jobDescription,
-    location: restJobData.location,
-    totalPay: restJobData.totalPay,
     startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : null,
   });
   return docRef.id;
@@ -59,15 +55,15 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
 /**
  * Fetches all jobs from the 'jobs' collection.
  */
-export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]> {
+export async function fetchJobs(adminStage?: JobStatus | JobStatus[]): Promise<Job[]> {
   const jobsCollection = collection(db, 'jobs');
   let q = query(jobsCollection);
 
-  if (status) {
-    if (Array.isArray(status)) {
-        q = query(jobsCollection, where('status', 'in', status));
+  if (adminStage) {
+    if (Array.isArray(adminStage)) {
+        q = query(jobsCollection, where('adminStage', 'in', adminStage));
     } else {
-        q = query(jobsCollection, where('status', '==', status));
+        q = query(jobsCollection, where('adminStage', '==', adminStage));
     }
   }
 
@@ -88,16 +84,19 @@ export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]
 
     return {
       id: doc.id,
-      jobTitle: data.jobTitle || data.projectName || data.title || 'Untitled Job',
-      jobDescription: data.jobDescription || data.fullDescription || 'No description provided.',
-      location: data.location || data.locationCity || 'No location specified',
+      jobTitle: data.jobTitle || 'Untitled Job',
+      jobDescription: data.jobDescription || 'No description provided.',
+      location: data.location || 'No location specified',
       date: startDate ? formatDate(startDate.toDate()) : 'TBD',
       time: startDate ? formatTime(startDate.toDate()) : 'N/A',
       payment: payment,
-      status: data.status || 'Open',
+      adminStage: data.adminStage || 'Open',
       cleanersNeeded: data.cleanersNeeded,
       areaM2: data.areaM2,
       assignedTo: data.assignedTo,
+      category: data.category,
+      duration: data.duration,
+      jobStatus: data.jobStatus,
     };
   });
 
@@ -128,16 +127,19 @@ export async function fetchJobById(id: string): Promise<Job | null> {
 
     return { 
         id: jobSnap.id,
-        jobTitle: data.jobTitle || data.projectName || data.title || 'Untitled Job',
-        jobDescription: data.jobDescription || data.fullDescription || 'No description provided.',
-        location: data.location || data.locationCity || 'No location specified',
+        jobTitle: data.jobTitle || 'Untitled Job',
+        jobDescription: data.jobDescription || 'No description provided.',
+        location: data.location || 'No location specified',
         date: startDate ? formatDate(startDate.toDate()) : 'TBD',
         time: startDate ? formatTime(startDate.toDate()) : 'TBD',
         payment: payment,
-        status: data.status || 'Open',
+        adminStage: data.adminStage || 'Open',
         cleanersNeeded: data.cleanersNeeded,
         areaM2: data.areaM2,
         assignedTo: data.assignedTo,
+        category: data.category,
+        duration: data.duration,
+        jobStatus: data.jobStatus,
      };
   }
   
@@ -164,16 +166,19 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
     
     return {
       id: jobSnap.id,
-      jobTitle: data.jobTitle || data.projectName || data.title || '',
-      jobDescription: data.jobDescription || data.fullDescription || '',
-      location: data.location || data.locationCity || '',
+      jobTitle: data.jobTitle || '',
+      jobDescription: data.jobDescription || '',
+      location: data.location || '',
       totalPay: payment,
       paymentPerCleaner: data.paymentPerCleaner || undefined,
-      status: data.status || 'Open',
+      adminStage: data.adminStage || 'Open',
       cleanersNeeded: data.cleanersNeeded || 1,
       areaM2: data.areaM2 || undefined,
       startDate: startDate,
       startTime: startDate ? `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '09:00',
+      category: data.category || undefined,
+      duration: data.duration || undefined,
+      jobStatus: data.jobStatus || 'available',
     };
   }
   return null;
@@ -366,3 +371,5 @@ export async function updateUserProfile(userId: string, profileData: Partial<Use
     const userDocRef = doc(db, 'users', userId);
     await setDoc(userDocRef, profileData, { merge: true });
 }
+
+    

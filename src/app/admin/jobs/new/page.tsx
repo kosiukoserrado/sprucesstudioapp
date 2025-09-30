@@ -32,25 +32,27 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { createJob } from "@/lib/firebase/firestore";
-import type { JobStatus } from "@/lib/types";
 
 const formSchema = z.object({
-  jobTitle: z.string().min(1, "Job title is required"),
-  jobDescription: z.string().min(1, "Description is required"),
-  location: z.string().min(1, "Location is required"),
-  totalPay: z.coerce.number().min(0, "Payment must be a positive number"),
+  jobTitle: z.string().optional(),
+  jobDescription: z.string().optional(),
+  location: z.string().optional(),
+  totalPay: z.coerce.number().optional(),
   paymentPerCleaner: z.coerce.number().optional(),
-  status: z.enum(["Open", "Closed", "In progress", "Completed"]),
-  cleanersNeeded: z.coerce.number().int().min(1, "At least one cleaner is needed"),
+  adminStage: z.enum(["Open", "Closed", "In progress", "Completed"]).optional(),
+  cleanersNeeded: z.coerce.number().int().optional(),
   areaM2: z.coerce.number().optional(),
-  startDate: z.date({ required_error: "A start date is required." }),
-  startTime: z.string().min(1, "Start time is required"),
+  startDate: z.date().optional(),
+  startTime: z.string().optional(),
+  category: z.string().optional(),
+  duration: z.string().optional(),
+  jobStatus: z.enum(["available", "upcoming", "urgent"]).optional(),
 });
 
 type NewJobFormValues = z.infer<typeof formSchema>;
@@ -63,7 +65,8 @@ export default function NewJobPage() {
   const form = useForm<NewJobFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      status: "Open",
+      adminStage: "Open",
+      jobStatus: "available",
       cleanersNeeded: 1,
       startTime: "09:00",
     },
@@ -152,6 +155,63 @@ export default function NewJobPage() {
                         </FormItem>
                     )}
                 />
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Category</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Category" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Refurbishment">Refurbishment</SelectItem>
+                                    <SelectItem value="Fitout">Fitout</SelectItem>
+                                    <SelectItem value="Post Construction">Post Construction</SelectItem>
+                                    <SelectItem value="Office">Office</SelectItem>
+                                    <SelectItem value="Childcare">Childcare</SelectItem>
+                                    <SelectItem value="School">School</SelectItem>
+                                    <SelectItem value="Residential">Residential</SelectItem>
+                                    <SelectItem value="Commercial">Commercial</SelectItem>
+                                    <SelectItem value="General">General</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="duration"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Duration (days)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="e.g., 3" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="areaM2"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Area (m²)</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="e.g., 150" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <FormField
@@ -251,14 +311,38 @@ export default function NewJobPage() {
                     />
                      <FormField
                         control={form.control}
-                        name="status"
+                        name="jobStatus"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Status</FormLabel>
+                            <FormLabel>Job Status (for cleaner)</FormLabel>
                              <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a status" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="available">Available</SelectItem>
+                                    <SelectItem value="upcoming">Upcoming</SelectItem>
+                                    <SelectItem value="urgent">Urgent</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                     <FormField
+                        control={form.control}
+                        name="adminStage"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Admin Stage</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a stage" />
                                 </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -285,3 +369,5 @@ export default function NewJobPage() {
     </div>
   );
 }
+
+    
