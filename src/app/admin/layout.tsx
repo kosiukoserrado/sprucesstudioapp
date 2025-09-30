@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Bell, Loader2 } from "lucide-react";
+import { LogOut, Bell, Loader2, User } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -88,8 +88,11 @@ export default function AdminLayout({
       </Sidebar>
       <SidebarInset>
         <header className="flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
-          <div>
+          <div className="flex items-center gap-2">
             <SidebarTrigger className="md:hidden" />
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard"><User className="mr-2 h-4 w-4" />Switch to Cleaner View</Link>
+            </Button>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="rounded-full">
