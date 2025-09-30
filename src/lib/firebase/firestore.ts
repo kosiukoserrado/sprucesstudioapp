@@ -205,9 +205,8 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
     }
   }
 
-
   if (totalPay !== undefined) {
-      updateData.payment = totalPay;
+    updateData.payment = totalPay;
   }
   
   if (adminStage) {
@@ -233,7 +232,6 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
   if (location !== undefined) {
     updateData.location = location;
   }
-
 
   const jobDocRef = doc(db, 'jobs', id);
   await updateDoc(jobDocRef, updateData);
