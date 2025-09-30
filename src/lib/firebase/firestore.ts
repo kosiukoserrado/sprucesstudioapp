@@ -1,4 +1,4 @@
-import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc, serverTimestamp, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Job, Application, JobStatus, UserProfile, ApplicationStatus } from '@/lib/types';
 
@@ -205,6 +205,34 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
 
   const jobDocRef = doc(db, 'jobs', id);
   await updateDoc(jobDocRef, updateData);
+}
+
+/**
+ * Deletes a job and all its associated applications.
+ * @param jobId The ID of the job to delete.
+ */
+export async function deleteJob(jobId: string): Promise<void> {
+  if (!jobId) {
+    throw new Error("Job ID is required.");
+  }
+  
+  const jobDocRef = doc(db, 'jobs', jobId);
+  const applicationsRef = collection(db, 'applications');
+
+  // Find all applications for the job
+  const q = query(applicationsRef, where("jobId", "==", jobId));
+  const querySnapshot = await getDocs(q);
+
+  // Use a batch to delete all applications and the job in one atomic operation
+  const batch = writeBatch(db);
+
+  querySnapshot.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+
+  batch.delete(jobDocRef);
+
+  await batch.commit();
 }
 
 

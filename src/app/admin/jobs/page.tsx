@@ -12,36 +12,81 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { fetchJobs } from "@/lib/firebase/firestore";
+import { deleteJob, fetchJobs } from "@/lib/firebase/firestore";
 import type { Job } from "@/lib/types";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminJobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    const getJobs = async () => {
+  const loadJobs = async () => {
       setLoading(true);
       try {
-        const fetchedJobs = await fetchJobs(); // Fetches all jobs regardless of status
+        const fetchedJobs = await fetchJobs();
         setJobs(fetchedJobs);
       } catch (error) {
         console.error("Error fetching jobs:", error);
+        toast({ variant: "destructive", title: "Error", description: "Failed to load jobs." });
       } finally {
         setLoading(false);
       }
     };
-    getJobs();
+
+  useEffect(() => {
+    loadJobs();
   }, []);
+  
+  const handleDeleteClick = (job: Job) => {
+    setSelectedJob(job);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedJob) return;
+
+    try {
+      await deleteJob(selectedJob.id);
+      toast({
+        title: "Job Deleted",
+        description: `The job "${selectedJob.jobTitle}" has been successfully deleted.`,
+      });
+      loadJobs(); // Refresh the list
+    } catch (error) {
+       toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete the job.",
+      });
+    } finally {
+        setIsDeleteDialogOpen(false);
+        setSelectedJob(null);
+    }
+  };
+
 
     const getStatusVariant = (status: Job['status']) => {
         switch (status) {
@@ -59,6 +104,7 @@ export default function AdminJobsPage() {
     };
 
   return (
+    <>
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
@@ -124,7 +170,11 @@ export default function AdminJobsPage() {
                           <DropdownMenuItem asChild>
                              <Link href={`/admin/jobs/${job.id}/edit`}>Edit</Link>
                           </DropdownMenuItem>
-                           <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">Delete</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                           <DropdownMenuItem onClick={() => handleDeleteClick(job)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -141,5 +191,28 @@ export default function AdminJobsPage() {
         </div>
       )}
     </div>
+
+     <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the job
+              <span className="font-semibold"> {selectedJob?.jobTitle} </span> 
+              and all of its associated applications.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
