@@ -43,12 +43,16 @@ const formSchema = z.object({
   jobTitle: z.string().min(5, "Title must be at least 5 characters long."),
   jobDescription: z.string().min(20, "Description must be at least 20 characters long."),
   location: z.string().min(2, "Location is required."),
-  payment: z.coerce.number().positive("Payment must be a positive number."),
+  totalPay: z.coerce.number().positive("Total payment must be a positive number."),
+  paymentPerCleaner: z.coerce.number().positive("Payment per cleaner must be a positive number.").optional(),
   status: z.enum(["Available", "Urgent", "Upcoming"]),
   cleanersNeeded: z.coerce.number().int().min(1, "At least one cleaner is needed."),
   areaM2: z.coerce.number().positive("Area must be a positive number.").optional(),
   startDate: z.date({
-    required_error: "A start date and time is required.",
+    required_error: "A start date is required.",
+  }),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: "Invalid time format. Please use HH:mm.",
   }),
 });
 
@@ -64,6 +68,7 @@ export default function NewJobPage() {
     defaultValues: {
       status: "Available",
       cleanersNeeded: 1,
+      startTime: "09:00",
     },
   });
 
@@ -151,13 +156,26 @@ export default function NewJobPage() {
                     )}
                 />
                 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <FormField
                         control={form.control}
-                        name="payment"
+                        name="totalPay"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Payment (£)</FormLabel>
+                            <FormLabel>Total Payment (£)</FormLabel>
+                            <FormControl>
+                                <Input type="number" step="0.01" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="paymentPerCleaner"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Payment per Cleaner (£)</FormLabel>
                             <FormControl>
                                 <Input type="number" step="0.01" {...field} />
                             </FormControl>
@@ -167,10 +185,26 @@ export default function NewJobPage() {
                     />
                      <FormField
                         control={form.control}
+                        name="cleanersNeeded"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Cleaners Needed</FormLabel>
+                            <FormControl>
+                                <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                     <FormField
+                        control={form.control}
                         name="startDate"
                         render={({ field }) => (
                         <FormItem className="flex flex-col pt-2">
-                            <FormLabel>Start Date & Time</FormLabel>
+                            <FormLabel>Start Date</FormLabel>
                             <Popover>
                             <PopoverTrigger asChild>
                                 <FormControl>
@@ -182,7 +216,7 @@ export default function NewJobPage() {
                                     )}
                                 >
                                     {field.value ? (
-                                    format(field.value, "PPP HH:mm")
+                                    format(field.value, "PPP")
                                     ) : (
                                     <span>Pick a date</span>
                                     )}
@@ -204,14 +238,14 @@ export default function NewJobPage() {
                         </FormItem>
                         )}
                     />
-                    <FormField
+                     <FormField
                         control={form.control}
-                        name="cleanersNeeded"
+                        name="startTime"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Cleaners Needed</FormLabel>
+                            <FormLabel>Start Time</FormLabel>
                             <FormControl>
-                                <Input type="number" {...field} />
+                                <Input type="time" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>

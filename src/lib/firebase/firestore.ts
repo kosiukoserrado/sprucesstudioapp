@@ -22,15 +22,26 @@ function formatTime(timestamp: Timestamp | Date): string {
     }).format(date);
 }
 
+type CreateJobData = Omit<Job, 'id' | 'date' | 'time' | 'startDate'> & {
+  startDate: Date;
+  startTime: string;
+};
+
 /**
  * Creates a new job in the 'jobs' collection.
  * @param jobData - The data for the new job.
  */
-export async function createJob(jobData: Omit<Job, 'id' | 'date' | 'time'> & {startDate: Date}): Promise<string> {
+export async function createJob(jobData: CreateJobData): Promise<string> {
+  const { startDate, startTime, ...restJobData } = jobData;
+  const [hours, minutes] = startTime.split(':').map(Number);
+  
+  const combinedDateTime = new Date(startDate);
+  combinedDateTime.setHours(hours, minutes, 0, 0);
+
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
-    ...jobData,
-    startDate: Timestamp.fromDate(jobData.startDate),
+    ...restJobData,
+    startDate: Timestamp.fromDate(combinedDateTime),
   });
   return docRef.id;
 }
@@ -43,15 +54,13 @@ export async function fetchJobs(): Promise<Job[]> {
   const jobsCollection = collection(db, 'jobs');
   const jobSnapshot = await getDocs(jobsCollection);
   
-  if (jobSnapshot.empty) {
-    return [];
-  }
-
-  const jobs: Job[] = jobSnapshot.docs.map((doc) => {
+  const jobs: Job[] = [];
+  jobSnapshot.forEach((doc) => {
     const data = doc.data();
     
     let payment = 0;
-    const paymentValue = data.totalPay || data.payment;
+    // Use totalPay as the primary payment field
+    const paymentValue = data.totalPay || data.paymentPerCleaner || 0;
     if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
     } else if (typeof paymentValue === 'number') {
@@ -60,7 +69,7 @@ export async function fetchJobs(): Promise<Job[]> {
 
     const startDate = data.startDate;
 
-    return {
+    jobs.push({
       id: doc.id,
       jobTitle: data.projectName || data.title || 'Untitled Job',
       jobDescription: data.fullDescription || data.jobDescription || 'No description provided.',
@@ -71,7 +80,7 @@ export async function fetchJobs(): Promise<Job[]> {
       status: data.status || 'Available',
       cleanersNeeded: data.cleanersNeeded,
       areaM2: data.areaM2,
-    };
+    });
   });
 
   return jobs;
@@ -90,7 +99,8 @@ export async function fetchJobById(id: string): Promise<Job | null> {
     const data = jobSnap.data();
     
     let payment = 0;
-    const paymentValue = data.totalPay || data.payment;
+    // Use totalPay as the primary payment field
+    const paymentValue = data.totalPay || data.paymentPerCleaner || 0;
      if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
     } else if (typeof paymentValue === 'number') {
