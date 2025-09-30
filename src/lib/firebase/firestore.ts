@@ -10,18 +10,23 @@ import type { Job, Application } from '@/lib/types';
 export async function fetchJobs(): Promise<Job[]> {
   const jobsCollection = collection(db, 'jobs');
   const jobSnapshot = await getDocs(jobsCollection);
-  const jobs: Job[] = [];
-  jobSnapshot.forEach((doc) => {
+  
+  if (jobSnapshot.empty) {
+    return [];
+  }
+
+  const jobs = jobSnapshot.docs.map((doc) => {
     const data = doc.data();
-    const paymentValue = data.payment;
     let payment = 0;
+    const paymentValue = data.payment;
+
     if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue);
     } else if (typeof paymentValue === 'number') {
         payment = paymentValue;
     }
 
-    jobs.push({
+    return {
       id: doc.id,
       jobTitle: data.jobTitle || 'Untitled Job',
       jobDescription: data.jobDescription || 'No description provided.',
@@ -29,8 +34,9 @@ export async function fetchJobs(): Promise<Job[]> {
       date: data.date || 'Date not set',
       time: data.time || 'Time not set',
       payment: isNaN(payment) ? 0 : payment,
-    });
+    };
   });
+
   return jobs;
 }
 
@@ -42,10 +48,12 @@ export async function fetchJobById(id: string): Promise<Job | null> {
   if (!id) return null;
   const jobDocRef = doc(db, 'jobs', id);
   const jobSnap = await getDoc(jobDocRef);
+
   if (jobSnap.exists()) {
     const data = jobSnap.data();
-    const paymentValue = data.payment;
     let payment = 0;
+    const paymentValue = data.payment;
+    
     if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue);
     } else if (typeof paymentValue === 'number') {
@@ -60,8 +68,9 @@ export async function fetchJobById(id: string): Promise<Job | null> {
         date: data.date || 'Date not set',
         time: data.time || 'Time not set',
         payment: isNaN(payment) ? 0 : payment,
-     } as Job;
+     };
   }
+  
   return null;
 }
 
