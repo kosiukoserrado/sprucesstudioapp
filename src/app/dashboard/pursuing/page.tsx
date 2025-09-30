@@ -42,7 +42,6 @@ export default function PursuingPage() {
         const apps = await fetchApplicationsByUserId(user.uid);
         const appsWithJobs = await Promise.all(
           apps.map(async (app) => {
-            // Use jobTitle from app if job fetch fails
             const job = await fetchJobById(app.jobId);
             return { app, job };
           })

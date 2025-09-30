@@ -18,12 +18,17 @@ import type { Job, Application } from "@/lib/types";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 
+type ApplicationWithJob = {
+  app: Application;
+  job: Job | null;
+};
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [activeJob, setActiveJob] = useState<Job | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [opportunities, setOpportunities] = useState<Job[]>([]);
-  const [recentApplicationsWithJobs, setRecentApplicationsWithJobs] = useState<{app: Application, job: Job}[]>([]);
+  const [recentApplicationsWithJobs, setRecentApplicationsWithJobs] = useState<ApplicationWithJob[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,10 +50,10 @@ export default function DashboardPage() {
         const appsWithJobs = await Promise.all(
           recentApps.map(async (app) => {
             const job = await fetchJobById(app.jobId);
-            return { app, job: job! };
+            return { app, job };
           })
         );
-        setRecentApplicationsWithJobs(appsWithJobs.filter(item => item.job));
+        setRecentApplicationsWithJobs(appsWithJobs);
 
       } catch (error) {
         console.error("Error loading dashboard data:", error);
@@ -134,10 +139,10 @@ export default function DashboardPage() {
                         <p className="text-sm text-muted-foreground">Applications Pending</p>
                     </div>
                     <ul className="space-y-2">
-                        {recentApplicationsWithJobs.map(item => (
-                             <li key={item.app.id} className="flex justify-between items-center text-sm">
-                               <span>{item.job.jobTitle}</span>
-                               <Badge variant={item.app.status === 'Accepted' ? 'default' : item.app.status === 'Rejected' ? 'destructive' : 'secondary'} className={item.app.status === 'Accepted' ? 'bg-green-600/80 text-white' : ''}>{item.app.status}</Badge>
+                        {recentApplicationsWithJobs.map(({ app, job }) => (
+                             <li key={app.id} className="flex justify-between items-center text-sm">
+                               <span>{job?.jobTitle || app.jobTitle}</span>
+                               <Badge variant={app.status === 'Accepted' ? 'default' : app.status === 'Rejected' ? 'destructive' : 'secondary'} className={app.status === 'Accepted' ? 'bg-green-600/80 text-white' : ''}>{app.status}</Badge>
                              </li>
                         ))}
                     </ul>
