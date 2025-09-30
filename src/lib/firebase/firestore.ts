@@ -1,4 +1,4 @@
-import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Job, Application } from '@/lib/types';
 
@@ -41,6 +41,10 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
     ...restJobData,
+     jobTitle: restJobData.jobTitle,
+    jobDescription: restJobData.jobDescription,
+    location: restJobData.location,
+    totalPay: restJobData.totalPay,
     startDate: Timestamp.fromDate(combinedDateTime),
   });
   return docRef.id;
@@ -54,12 +58,10 @@ export async function fetchJobs(): Promise<Job[]> {
   const jobsCollection = collection(db, 'jobs');
   const jobSnapshot = await getDocs(jobsCollection);
   
-  const jobs: Job[] = [];
-  jobSnapshot.forEach((doc) => {
+  const jobs: Job[] = jobSnapshot.docs.map((doc) => {
     const data = doc.data();
     
     let payment = 0;
-    // Use totalPay as the primary payment field
     const paymentValue = data.totalPay || data.paymentPerCleaner || 0;
     if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
@@ -69,18 +71,18 @@ export async function fetchJobs(): Promise<Job[]> {
 
     const startDate = data.startDate;
 
-    jobs.push({
+    return {
       id: doc.id,
-      jobTitle: data.projectName || data.title || 'Untitled Job',
-      jobDescription: data.fullDescription || data.jobDescription || 'No description provided.',
-      location: data.locationCity || data.location || 'No location specified',
+      jobTitle: data.jobTitle || data.projectName || data.title || 'Untitled Job',
+      jobDescription: data.jobDescription || data.fullDescription || 'No description provided.',
+      location: data.location || data.locationCity || 'No location specified',
       date: startDate ? formatDate(startDate) : 'TBD',
       time: startDate ? formatTime(startDate) : 'N/A',
       payment: payment,
       status: data.status || 'Available',
       cleanersNeeded: data.cleanersNeeded,
       areaM2: data.areaM2,
-    });
+    };
   });
 
   return jobs;
@@ -99,7 +101,6 @@ export async function fetchJobById(id: string): Promise<Job | null> {
     const data = jobSnap.data();
     
     let payment = 0;
-    // Use totalPay as the primary payment field
     const paymentValue = data.totalPay || data.paymentPerCleaner || 0;
      if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
@@ -111,9 +112,9 @@ export async function fetchJobById(id: string): Promise<Job | null> {
 
     return { 
         id: jobSnap.id,
-        jobTitle: data.projectName || data.title || 'Untitled Job',
-        jobDescription: data.fullDescription || data.jobDescription || 'No description provided.',
-        location: data.locationCity || data.location || 'No location specified',
+        jobTitle: data.jobTitle || data.projectName || data.title || 'Untitled Job',
+        jobDescription: data.jobDescription || data.fullDescription || 'No description provided.',
+        location: data.location || data.locationCity || 'No location specified',
         date: startDate ? formatDate(startDate) : 'TBD',
         time: startDate ? formatTime(startDate) : 'N/A',
         payment: payment,
@@ -125,6 +126,57 @@ export async function fetchJobById(id: string): Promise<Job | null> {
   
   return null;
 }
+
+// Separate function to fetch raw data for the edit form
+export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
+  if (!id) return null;
+  const jobDocRef = doc(db, 'jobs', id);
+  const jobSnap = await getDoc(jobDocRef);
+
+  if (jobSnap.exists()) {
+    const data = jobSnap.data();
+    const startDate = data.startDate?.toDate(); // Convert Timestamp to Date
+    
+    return {
+      id: jobSnap.id,
+      jobTitle: data.jobTitle || data.projectName || data.title || '',
+      jobDescription: data.jobDescription || data.fullDescription || '',
+      location: data.location || data.locationCity || '',
+      payment: data.totalPay || 0, // This will be mapped to totalPay in the form
+      paymentPerCleaner: data.paymentPerCleaner || undefined,
+      status: data.status || 'Available',
+      cleanersNeeded: data.cleanersNeeded || 1,
+      areaM2: data.areaM2 || undefined,
+      startDate: startDate,
+      startTime: startDate ? `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '09:00',
+    };
+  }
+  return null;
+}
+
+/**
+ * Updates an existing job in the 'jobs' collection.
+ * @param id - The ID of the job to update.
+ * @param jobData - The data to update.
+ */
+export async function updateJob(id: string, jobData: CreateJobData): Promise<void> {
+  const { startDate, startTime, ...restJobData } = jobData;
+  const [hours, minutes] = startTime.split(':').map(Number);
+  
+  const combinedDateTime = new Date(startDate);
+  combinedDateTime.setHours(hours, minutes, 0, 0);
+
+  const jobDocRef = doc(db, 'jobs', id);
+  await updateDoc(jobDocRef, {
+    ...restJobData,
+    jobTitle: restJobData.jobTitle,
+    jobDescription: restJobData.jobDescription,
+    location: restJobData.location,
+    totalPay: restJobData.totalPay,
+    startDate: Timestamp.fromDate(combinedDateTime),
+  });
+}
+
 
 /**
  * Fetches all applications for a specific user from the 'applications' collection.
