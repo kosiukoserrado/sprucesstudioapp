@@ -1,10 +1,13 @@
 import type {Metadata} from 'next';
 import { Toaster } from "@/components/ui/toaster";
+import { Inter } from 'next/font/google';
 import './globals.css';
 
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+
 export const metadata: Metadata = {
-  title: 'CodeSpruce Cleaning',
-  description: 'Customized cleaning plans for a spotless home.',
+  title: 'CodeSpruce Cleaner App',
+  description: 'Your portal for managing cleaning jobs.',
 };
 
 export default function RootLayout({
@@ -14,12 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&family=Belleza&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased">
+      <body className={`font-sans ${inter.variable} antialiased`}>
         {children}
         <Toaster />
       </body>
