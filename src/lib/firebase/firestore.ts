@@ -22,7 +22,8 @@ function formatTime(timestamp: Timestamp | Date): string {
     }).format(date);
 }
 
-type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'payment' | 'adminStage' | 'jobDescription'>> & {
+type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'payment' | 'adminStage'>> & {
+  jobTitle?: string;
   startDate?: Date;
   startTime?: string;
   totalPay?: number;
@@ -36,7 +37,7 @@ type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'p
  * @param jobData - The data for the new job.
  */
 export async function createJob(jobData: CreateJobData): Promise<string> {
-  const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, ...restJobData } = jobData;
+  const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, jobTitle, location, ...restJobData } = jobData;
   
   let combinedDateTime: Date | null = null;
   if (startDate && startTime) {
@@ -50,6 +51,8 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
     ...restJobData,
+    jobTitle: jobTitle || null,
+    location: location || null,
     fullDescription: jobDescription || '',
     days: duration || null,
     displayStatus: jobStatus || 'Available',
@@ -176,7 +179,7 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
  * @param jobData - The data to update.
  */
 export async function updateJob(id: string, jobData: Partial<CreateJobData>): Promise<void> {
-  const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, ...restJobData } = jobData;
+  const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, jobTitle, location, ...restJobData } = jobData;
   
   let updateData: any = { ...restJobData };
 
@@ -221,6 +224,14 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
 
   if (jobStatus !== undefined) {
     updateData.displayStatus = jobStatus;
+  }
+  
+  if (jobTitle !== undefined) {
+    updateData.jobTitle = jobTitle;
+  }
+
+  if (location !== undefined) {
+    updateData.location = location;
   }
 
 
