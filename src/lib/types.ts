@@ -27,3 +27,18 @@ export type Application = {
   jobTitle?: string;
   userName?: string;
 };
+
+export type UserProfile = {
+  uid: string;
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  location?: string;
+  postcode?: string;
+  nationality?: string;
+  proximity?: number;
+  abn?: string;
+  bsb?: string;
+  accountNumber?: string;
+  photoURL?: string;
+};

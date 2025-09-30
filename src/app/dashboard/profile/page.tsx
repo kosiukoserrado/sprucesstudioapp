@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,19 +9,55 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
-import { User as UserIcon, LogOut, Loader2 } from 'lucide-react';
+import { User as UserIcon, LogOut, Loader2, Banknote, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { fetchUserProfile, updateUserProfile } from '@/lib/firebase/firestore';
+import type { UserProfile } from '@/lib/types';
 
 export default function ProfilePage() {
     const { user, signOut } = useAuth();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
+
+    // State for all form fields
     const [fullName, setFullName] = useState(user?.displayName || '');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [location, setLocation] = useState('');
     const [postcode, setPostcode] = useState('');
     const [nationality, setNationality] = useState('');
     const [proximity, setProximity] = useState([25]);
+    const [abn, setAbn] = useState('');
+    const [bsb, setBsb] = useState('');
+    const [accountNumber, setAccountNumber] = useState('');
+    
+    useEffect(() => {
+        const loadProfile = async () => {
+            if (!user) return;
+            setFetching(true);
+            try {
+                const profileData = await fetchUserProfile(user.uid);
+                if (profileData) {
+                    setFullName(profileData.fullName || user.displayName || '');
+                    setPhoneNumber(profileData.phoneNumber || '');
+                    setLocation(profileData.location || '');
+                    setPostcode(profileData.postcode || '');
+                    setNationality(profileData.nationality || '');
+                    setAbn(profileData.abn || '');
+                    setBsb(profileData.bsb || '');
+                    setAccountNumber(profileData.accountNumber || '');
+                    setProximity([profileData.proximity || 25]);
+                }
+            } catch (error) {
+                console.error("Failed to load profile", error);
+                toast({ variant: "destructive", title: "Error", description: "Could not load your profile data."});
+            } finally {
+                setFetching(false);
+            }
+        };
+        loadProfile();
+    }, [user, toast]);
+
 
     const getInitials = (name: string) => {
         if (!name) return 'U';
@@ -34,26 +70,37 @@ export default function ProfilePage() {
     
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
         setLoading(true);
-        // Here you would typically call an update function to save the data to Firestore
-        // e.g., await updateUserProfile(user.uid, { fullName, phoneNumber, ... });
-        console.log({
-            fullName,
-            phoneNumber,
-            location,
-            postcode,
-            nationality,
-            proximity: proximity[0],
-        });
         
-        // Simulate API call
-        setTimeout(() => {
-            setLoading(false);
+        try {
+            const profileData: Partial<UserProfile> = {
+                fullName,
+                phoneNumber,
+                location,
+                postcode,
+                nationality,
+                proximity: proximity[0],
+                abn,
+                bsb,
+                accountNumber,
+            };
+
+            await updateUserProfile(user.uid, profileData);
+
             toast({
                 title: "Profile Updated",
                 description: "Your information has been saved successfully.",
             });
-        }, 1500);
+        } catch (error) {
+             toast({
+                variant: "destructive",
+                title: "Update Failed",
+                description: "There was a problem updating your profile.",
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -78,7 +125,7 @@ export default function ProfilePage() {
                     </CardHeader>
                     <CardContent className="flex items-center gap-6">
                          <Avatar className="h-20 w-20">
-                            <AvatarImage src={user?.photoURL || ''} />
+                            <AvatarImage src={user?.photoURL || `https://i.pravatar.cc/150?u=${user?.email}`} />
                             <AvatarFallback>{getInitials(fullName)}</AvatarFallback>
                         </Avatar>
                         <div className="space-y-2">
@@ -136,7 +183,7 @@ export default function ProfilePage() {
                             <Label htmlFor="proximity-slider">Job Notification Proximity: {proximity[0]} km</Label>
                             <Slider
                                 id="proximity-slider"
-                                defaultValue={proximity}
+                                value={proximity}
                                 onValueChange={setProximity}
                                 max={100}
                                 step={1}
@@ -145,11 +192,54 @@ export default function ProfilePage() {
                         </div>
                     </CardContent>
                 </Card>
+
+                 <Separator className="my-8" />
+
+                <Card>
+                     <CardHeader>
+                        <div className="flex items-center gap-4">
+                            <Briefcase className="h-6 w-6 text-muted-foreground" />
+                            <CardTitle>Business Information</CardTitle>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="abn">ABN (Australian Business Number)</Label>
+                                <Input id="abn" value={abn} onChange={e => setAbn(e.target.value)} placeholder="00 000 000 000" />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Separator className="my-8" />
+
+                <Card>
+                     <CardHeader>
+                        <div className="flex items-center gap-4">
+                            <Banknote className="h-6 w-6 text-muted-foreground" />
+                            <CardTitle>Bank Details</CardTitle>
+                             <CardDescription>This information is kept secure and is only used for job payments.</CardDescription>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="bsb">BSB</Label>
+                                <Input id="bsb" value={bsb} onChange={e => setBsb(e.target.value)} placeholder="000-000" />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="accountNumber">Account Number</Label>
+                                <Input id="accountNumber" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="000000000" />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
                 
                 <div className="mt-8 flex justify-end">
-                    <Button type="submit" disabled={loading}>
-                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Finish update
+                    <Button type="submit" disabled={loading || fetching}>
+                        {(loading || fetching) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {loading ? 'Saving...' : 'Finish update'}
                     </Button>
                 </div>
             </form>

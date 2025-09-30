@@ -1,6 +1,6 @@
-import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Job, Application, JobStatus } from '@/lib/types';
+import type { Job, Application, JobStatus, UserProfile } from '@/lib/types';
 
 function formatDate(timestamp: Timestamp | Date): string {
     if (!timestamp) return 'Date not set';
@@ -298,4 +298,31 @@ export async function fetchAllApplications(): Promise<Application[]> {
   });
 
   return applications;
+}
+
+/**
+ * Fetches a user's profile from the 'users' collection.
+ * @param userId The UID of the user.
+ */
+export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
+    if (!userId) return null;
+    const userDocRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userDocRef);
+
+    if (userSnap.exists()) {
+        return userSnap.data() as UserProfile;
+    }
+    
+    return null;
+}
+
+/**
+ * Updates a user's profile in the 'users' collection.
+ * @param userId The UID of the user.
+ * @param profileData The data to update.
+ */
+export async function updateUserProfile(userId: string, profileData: Partial<UserProfile>): Promise<void> {
+    if (!userId) return;
+    const userDocRef = doc(db, 'users', userId);
+    await setDoc(userDocRef, profileData, { merge: true });
 }
