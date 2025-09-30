@@ -8,15 +8,18 @@ import {
   signOut as firebaseSignOut,
   updateProfile,
   User,
+  getAuth, // Import getAuth
+  UserCredential
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/firebase';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signUp: (email: string, password: string, displayName: string) => Promise<void>;
+  signUp: (email: string, password: string, displayName: string) => Promise<UserCredential>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  auth: typeof auth; // Expose auth object
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,6 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Manually update user state because onAuthStateChanged might be slow
       setUser({ ...userCredential.user, displayName });
     }
+    return userCredential;
   };
 
   const signIn = async (email: string, password: string) => {
@@ -56,6 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signUp,
     signIn,
     signOut,
+    auth, // Provide auth in context
   };
 
   return (

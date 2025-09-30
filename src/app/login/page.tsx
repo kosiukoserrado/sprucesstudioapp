@@ -13,10 +13,12 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { Slider } from '@/components/ui/slider';
+import { updateUserProfile } from '@/lib/firebase/firestore';
+import type { UserProfile } from '@/lib/types';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, signUp, signIn, loading } = useAuth();
+  const { user, signUp, signIn, loading, auth } = useAuth();
   const { toast } = useToast();
   
   const [loginEmail, setLoginEmail] = useState('');
@@ -54,9 +56,20 @@ export default function LoginPage() {
       return;
     }
     try {
-      await signUp(signupEmail, signupPassword, signupName);
-      // Here you would also save the additional fields (phone, location, abn, etc.) to your database
-      // For now, we just sign up the user.
+      const userCredential = await signUp(signupEmail, signupPassword, signupName);
+
+      if (userCredential && userCredential.user) {
+         const profileData: Partial<UserProfile> = {
+            fullName: signupName,
+            email: signupEmail,
+            phoneNumber: signupPhoneNumber,
+            location: signupLocation,
+            abn: signupAbn,
+            proximity: signupProximity[0],
+        };
+        await updateUserProfile(userCredential.user.uid, profileData);
+      }
+      
       toast({ title: "Sign Up Successful", description: "Your account has been created." });
       router.push('/dashboard');
     } catch (error: any) {
@@ -162,7 +175,7 @@ export default function LoginPage() {
                       </div>
                        <div className="space-y-2">
                         <Label htmlFor="abn-signup">ABN</Label>
-                        <Input id="abn-signup" placeholder="Your ABN" required value={signupAbn} onChange={e => setSignupAbn(e.target.value)} />
+                        <Input id="abn-signup" placeholder="Your ABN" value={signupAbn} onChange={e => setSignupAbn(e.target.value)} />
                       </div>
                     </div>
                     <div className="space-y-4 pt-2">
