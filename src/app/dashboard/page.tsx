@@ -96,7 +96,10 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /> {activeJob.postcode}</div>
                     <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> {activeJob.dateTime}</div>
                     <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> {activeJob.duration}</div>
-                    <div className="flex items-center gap-2 font-bold text-primary"><CircleDollarSign className="h-4 w-4" /> £{activeJob.pay.toFixed(2)}</div>
+                    <div className="flex items-center gap-2 font-bold text-primary">
+                        <CircleDollarSign className="h-4 w-4" /> 
+                        £{typeof activeJob.pay === 'number' ? activeJob.pay.toFixed(2) : 'N/A'}
+                    </div>
                 </div>
                 <p className="text-sm text-muted-foreground">{activeJob.description}</p>
               </div>
