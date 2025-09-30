@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LifeBuoy, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { Slider } from '@/components/ui/slider';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,6 +24,11 @@ export default function LoginPage() {
   const [signupName, setSignupName] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
+  const [signupPhoneNumber, setSignupPhoneNumber] = useState('');
+  const [signupLocation, setSignupLocation] = useState('');
+  const [signupAbn, setSignupAbn] = useState('');
+  const [signupProximity, setSignupProximity] = useState([25]);
 
   useEffect(() => {
     if (user) {
@@ -43,12 +49,18 @@ export default function LoginPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (signupPassword !== signupConfirmPassword) {
+      toast({ variant: "destructive", title: "Sign Up Failed", description: "Passwords do not match." });
+      return;
+    }
     try {
       await signUp(signupEmail, signupPassword, signupName);
+      // Here you would also save the additional fields (phone, location, abn, etc.) to your database
+      // For now, we just sign up the user.
       toast({ title: "Sign Up Successful", description: "Your account has been created." });
       router.push('/dashboard');
     } catch (error: any) {
-       toast({ variant: "destructive", title: "Sign Up Failed", description: error.message });
+      toast({ variant: "destructive", title: "Sign Up Failed", description: error.message });
     }
   };
 
@@ -67,7 +79,7 @@ export default function LoginPage() {
   return (
     <div className="w-full lg:grid lg:min-h-[100vh] lg:grid-cols-2">
       <div className="flex items-center justify-center py-12">
-        <div className="mx-auto grid w-[350px] gap-6">
+        <div className="mx-auto grid w-[400px] gap-6">
           <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold">Welcome</h1>
             <p className="text-balance text-muted-foreground">
@@ -117,19 +129,51 @@ export default function LoginPage() {
                     Create an account to start finding cleaning opportunities.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                    <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name-signup">Full Name</Label>
-                      <Input id="name-signup" placeholder="Alex Doe" required value={signupName} onChange={e => setSignupName(e.target.value)} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name-signup">Full Name</Label>
+                        <Input id="name-signup" placeholder="Alex Doe" required value={signupName} onChange={e => setSignupName(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone-signup">Phone Number</Label>
+                        <Input id="phone-signup" placeholder="0412 345 678" required value={signupPhoneNumber} onChange={e => setSignupPhoneNumber(e.target.value)} />
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email-signup">Email</Label>
                       <Input id="email-signup" type="email" placeholder="m@example.com" required value={signupEmail} onChange={e => setSignupEmail(e.target.value)} />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password-signup">Password</Label>
-                      <Input id="password-signup" type="password" required value={signupPassword} onChange={e => setSignupPassword(e.target.value)} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="password-signup">Password</Label>
+                        <Input id="password-signup" type="password" required value={signupPassword} onChange={e => setSignupPassword(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirm-password-signup">Confirm Password</Label>
+                        <Input id="confirm-password-signup" type="password" required value={signupConfirmPassword} onChange={e => setSignupConfirmPassword(e.target.value)} />
+                      </div>
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="location-signup">Location</Label>
+                        <Input id="location-signup" placeholder="e.g., Southport" required value={signupLocation} onChange={e => setSignupLocation(e.target.value)} />
+                      </div>
+                       <div className="space-y-2">
+                        <Label htmlFor="abn-signup">ABN</Label>
+                        <Input id="abn-signup" placeholder="Your ABN" required value={signupAbn} onChange={e => setSignupAbn(e.target.value)} />
+                      </div>
+                    </div>
+                    <div className="space-y-4 pt-2">
+                        <Label htmlFor="proximity-slider">Job Notification Proximity: {signupProximity[0]} km</Label>
+                        <Slider
+                            id="proximity-slider"
+                            defaultValue={signupProximity}
+                            onValueChange={setSignupProximity}
+                            max={100}
+                            step={1}
+                        />
                     </div>
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? <Loader2 className="animate-spin" /> : 'Create an account'}
