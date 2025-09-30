@@ -22,7 +22,11 @@ export default function OpportunityDetailPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) {
+        setLoading(false);
+        setError("No job ID provided.");
+        return;
+    };
 
     const getJob = async () => {
       setLoading(true);
@@ -56,12 +60,13 @@ export default function OpportunityDetailPage() {
   if (loading) {
     return (
       <div className="space-y-8">
-        <Skeleton className="h-8 w-2/3" />
-        <Skeleton className="h-4 w-1/2" />
+         <div>
+            <Skeleton className="h-10 w-48" />
+        </div>
         <Card>
             <CardHeader>
-                <Skeleton className="h-6 w-1/2 mb-2" />
-                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-8 w-2/3 mb-2" />
+                <Skeleton className="h-24 w-full" />
             </CardHeader>
             <CardContent className="space-y-4">
                 <Skeleton className="h-5 w-1/3" />
@@ -70,7 +75,7 @@ export default function OpportunityDetailPage() {
                 <Skeleton className="h-6 w-1/4" />
             </CardContent>
             <CardFooter>
-                 <Skeleton className="h-10 w-full" />
+                 <Skeleton className="h-12 w-full" />
             </CardFooter>
         </Card>
       </div>
@@ -88,7 +93,13 @@ export default function OpportunityDetailPage() {
   }
 
   if (!job) {
-    return null; 
+    return (
+       <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>Job could not be loaded. <Link href="/dashboard/opportunities" className="underline">Go back to opportunities</Link>.</AlertDescription>
+      </Alert>
+    );
   }
 
   return (

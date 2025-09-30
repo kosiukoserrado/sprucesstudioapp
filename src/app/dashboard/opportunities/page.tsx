@@ -5,21 +5,25 @@ import { JobCard } from "@/components/dashboard/job-card";
 import { fetchJobs } from "@/lib/firebase/firestore";
 import type { Job } from "@/lib/types";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Search, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function OpportunitiesPage() {
   const [opportunities, setOpportunities] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const getJobs = async () => {
       setLoading(true);
+      setError(null);
       try {
         const jobs = await fetchJobs();
         setOpportunities(jobs);
       } catch (error) {
         console.error("Error fetching job opportunities:", error);
+        setError("Failed to fetch job opportunities. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -51,6 +55,12 @@ export default function OpportunitiesPage() {
             </div>
           ))}
         </div>
+      ) : error ? (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : opportunities.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {opportunities.map((job) => (

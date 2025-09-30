@@ -10,19 +10,28 @@ import type { Job, Application } from '@/lib/types';
 export async function fetchJobs(): Promise<Job[]> {
   const jobsCollection = collection(db, 'jobs');
   const jobSnapshot = await getDocs(jobsCollection);
-  return jobSnapshot.docs.map(doc => {
+  const jobs: Job[] = [];
+  jobSnapshot.forEach((doc) => {
     const data = doc.data();
-    const payment = data.payment ? parseFloat(data.payment) : 0;
-    return { 
+    const paymentValue = data.payment;
+    let payment = 0;
+    if (typeof paymentValue === 'string') {
+        payment = parseFloat(paymentValue);
+    } else if (typeof paymentValue === 'number') {
+        payment = paymentValue;
+    }
+
+    jobs.push({
       id: doc.id,
-      jobTitle: data.jobTitle || 'No Title',
-      jobDescription: data.jobDescription || 'No Description',
-      location: data.location || 'No Location',
-      date: data.date || 'N/A',
-      time: data.time || 'N/A',
+      jobTitle: data.jobTitle || 'Untitled Job',
+      jobDescription: data.jobDescription || 'No description provided.',
+      location: data.location || 'No location specified',
+      date: data.date || 'Date not set',
+      time: data.time || 'Time not set',
       payment: isNaN(payment) ? 0 : payment,
-     } as Job;
+    });
   });
+  return jobs;
 }
 
 /**
@@ -30,18 +39,26 @@ export async function fetchJobs(): Promise<Job[]> {
  * @param id - The ID of the job to fetch.
  */
 export async function fetchJobById(id: string): Promise<Job | null> {
+  if (!id) return null;
   const jobDocRef = doc(db, 'jobs', id);
   const jobSnap = await getDoc(jobDocRef);
   if (jobSnap.exists()) {
     const data = jobSnap.data();
-    const payment = data.payment ? parseFloat(data.payment) : 0;
+    const paymentValue = data.payment;
+    let payment = 0;
+    if (typeof paymentValue === 'string') {
+        payment = parseFloat(paymentValue);
+    } else if (typeof paymentValue === 'number') {
+        payment = paymentValue;
+    }
+
     return { 
         id: jobSnap.id,
-        jobTitle: data.jobTitle || 'No Title',
-        jobDescription: data.jobDescription || 'No Description',
-        location: data.location || 'No Location',
-        date: data.date || 'N/A',
-        time: data.time || 'N/A',
+        jobTitle: data.jobTitle || 'Untitled Job',
+        jobDescription: data.jobDescription || 'No description provided.',
+        location: data.location || 'No location specified',
+        date: data.date || 'Date not set',
+        time: data.time || 'Time not set',
         payment: isNaN(payment) ? 0 : payment,
      } as Job;
   }
@@ -61,11 +78,14 @@ export async function fetchApplicationsByUserId(userId: string): Promise<Applica
     // Convert Firestore Timestamp to a readable string date format
     const appliedAt = data.appliedAt instanceof Timestamp 
       ? data.appliedAt.toDate().toLocaleDateString() 
-      : data.appliedAt;
+      : 'N/A';
 
     return { 
       id: doc.id, 
-      ...data,
+      userId: data.userId,
+      jobId: data.jobId,
+      status: data.status,
+      jobTitle: data.jobTitle,
       appliedAt,
     } as Application;
   });
