@@ -30,7 +30,6 @@ export default function AdminLayout({
     if (!loading && !user) {
       router.push('/login');
     }
-    // Add admin check logic here if available
   }, [user, loading, router]);
 
 
@@ -47,8 +46,8 @@ export default function AdminLayout({
     );
   }
 
-  // Simple check if user is admin (replace with your actual logic)
-  const isAdmin = user.email === 'admin@example.com';
+  // Check if the logged-in user's UID matches the admin UID.
+  const isAdmin = user.uid === '6KaeKCUuw7MVGk5X4K7G1DYEuYx1';
   if (!isAdmin) {
     return (
         <div className="flex h-screen w-full items-center justify-center flex-col gap-4">
