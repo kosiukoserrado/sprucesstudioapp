@@ -8,7 +8,7 @@ export const dashboardNavItems = [
 ];
 
 export const adminNavItems = [
-    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/jobs', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/jobs', label: 'Job Management', icon: Briefcase },
     { href: '/admin/applications', label: 'Applications', icon: FileText },
 ];
