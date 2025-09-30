@@ -15,6 +15,35 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "@/components/ui/badge";
 
+
+const JobDescriptionParser = ({ description }: { description: string }) => {
+    // Split the description into sections. This is a basic implementation.
+    // A more robust solution might involve a more structured data source.
+    const sections = description.split(/(?=[A-Z][a-zA-Z\s,]+:)/).map(s => s.trim());
+
+    return (
+        <div className="space-y-4">
+            {sections.map((section, index) => {
+                const parts = section.split(/:(.*)/s);
+                const title = parts[0];
+                const content = parts[1];
+
+                if (!content) {
+                    return <p key={index} className="text-muted-foreground leading-relaxed">{title}</p>;
+                }
+
+                return (
+                    <div key={index}>
+                        <h4 className="font-semibold text-md mb-1">{title}</h4>
+                        <p className="text-muted-foreground leading-relaxed">{content.trim()}</p>
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
+
 export default function OpportunityDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -173,7 +202,7 @@ export default function OpportunityDetailPage() {
         <CardContent className="pt-6 space-y-8">
             <div>
                 <h2 className="font-semibold text-xl mb-4 flex items-center gap-2"><Briefcase className="w-5 h-5 text-primary"/> Job Overview</h2>
-                <p className="text-muted-foreground leading-relaxed">{job.jobDescription}</p>
+                <JobDescriptionParser description={job.jobDescription} />
             </div>
 
             <div className="grid gap-8 md:grid-cols-2 pt-6 border-t">
@@ -222,5 +251,3 @@ export default function OpportunityDetailPage() {
     </div>
   );
 }
-
-    
