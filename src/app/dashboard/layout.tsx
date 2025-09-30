@@ -59,7 +59,7 @@ export default function DashboardLayout({
           </Link>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarNav />
+          <SidebarNav userEmail={user.email} />
         </SidebarContent>
         <SidebarFooter className="flex items-center gap-2">
            <Avatar className="group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10">
