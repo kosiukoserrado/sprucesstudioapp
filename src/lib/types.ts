@@ -8,7 +8,9 @@ export type Job = {
   date: string;
   time: string;
   payment: number;
-  status?: string;
+  status: string;
+  cleanersNeeded?: number;
+  areaM2?: number;
 };
 
 export type ApplicationStatus = "Pending" | "Accepted" | "Rejected";

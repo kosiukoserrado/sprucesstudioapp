@@ -1,4 +1,4 @@
-import { collection, getDocs, getDoc, doc, query, where, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Job, Application } from '@/lib/types';
 
@@ -20,6 +20,19 @@ function formatTime(timestamp: Timestamp | Date): string {
         minute: '2-digit',
         hour12: true
     }).format(date);
+}
+
+/**
+ * Creates a new job in the 'jobs' collection.
+ * @param jobData - The data for the new job.
+ */
+export async function createJob(jobData: Omit<Job, 'id' | 'date' | 'time'> & {startDate: Date}): Promise<string> {
+  const jobsCollection = collection(db, 'jobs');
+  const docRef = await addDoc(jobsCollection, {
+    ...jobData,
+    startDate: Timestamp.fromDate(jobData.startDate),
+  });
+  return docRef.id;
 }
 
 
@@ -56,6 +69,8 @@ export async function fetchJobs(): Promise<Job[]> {
       time: startDate ? formatTime(startDate) : 'N/A',
       payment: payment,
       status: data.status || 'Available',
+      cleanersNeeded: data.cleanersNeeded,
+      areaM2: data.areaM2,
     };
   });
 
@@ -93,6 +108,8 @@ export async function fetchJobById(id: string): Promise<Job | null> {
         time: startDate ? formatTime(startDate) : 'N/A',
         payment: payment,
         status: data.status || 'Available',
+        cleanersNeeded: data.cleanersNeeded,
+        areaM2: data.areaM2,
      };
   }
   
