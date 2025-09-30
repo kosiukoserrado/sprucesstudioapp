@@ -116,7 +116,7 @@ export default function LoginPage() {
             />
             <div className="absolute inset-0 bg-zinc-900/60 rounded-lg flex flex-col items-center justify-center text-white p-8 text-center">
                  <LifeBuoy className="w-16 h-16 text-primary mb-4" />
-                 <h2 className="text-4xl font-bold mb-2">CleanCo Portal</h2>
+                 <h2 className="text-4xl font-bold mb-2">SprucesApp Portal</h2>
                  <p className="text-xl">The all-in-one platform for professional cleaners.</p>
             </div>
         </div>

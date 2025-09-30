@@ -25,7 +25,7 @@ export default function DashboardLayout({
           <Link href="/dashboard" className="flex items-center gap-2" prefetch={false}>
             <LifeBuoy className="w-8 h-8 text-primary" />
             <h2 className="font-bold text-2xl text-foreground group-data-[collapsible=icon]:hidden">
-              CleanCo
+              SprucesApp
             </h2>
           </Link>
         </SidebarHeader>

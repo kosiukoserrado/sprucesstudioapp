@@ -6,7 +6,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: 'CodeSpruce Cleaner App',
+  title: 'SprucesApp',
   description: 'Your portal for managing cleaning jobs.',
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={`font-sans ${inter.variable} antialiased`}>
         {children}
         <Toaster />
