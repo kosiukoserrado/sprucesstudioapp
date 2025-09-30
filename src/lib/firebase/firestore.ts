@@ -51,7 +51,7 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
     ...restJobData,
     payment: totalPay,
     startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : null,
-    status: adminStage,
+    status: adminStage, // Save adminStage as 'status'
   });
   return docRef.id;
 }
