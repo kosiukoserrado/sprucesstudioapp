@@ -46,8 +46,8 @@ export default function AdminLayout({
     );
   }
 
-  // Check if the logged-in user's UID matches the admin UID.
-  const isAdmin = user.uid === '6KaeKCUuw7MVGk5X4K7G1DYEuYx1';
+  // Check if the logged-in user's email matches the admin email.
+  const isAdmin = user.email === 'kosiserrado@gmail.com';
   if (!isAdmin) {
     return (
         <div className="flex h-screen w-full items-center justify-center flex-col gap-4">
