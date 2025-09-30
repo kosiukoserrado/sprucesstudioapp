@@ -58,7 +58,7 @@ export default function AdminJobsPage() {
 
   useEffect(() => {
     loadJobs();
-  }, []);
+  }, [toast]);
   
   const handleDeleteClick = (job: Job) => {
     setSelectedJob(job);
@@ -88,8 +88,8 @@ export default function AdminJobsPage() {
   };
 
 
-    const getAdminStageVariant = (adminStage: Job['adminStage']) => {
-        switch (adminStage) {
+    const getStatusVariant = (status: Job['status']) => {
+        switch (status) {
             case 'Open':
                 return 'secondary';
             case 'In progress':
@@ -127,7 +127,7 @@ export default function AdminJobsPage() {
               <TableHead className="hidden md:table-cell">Location</TableHead>
               <TableHead className="hidden lg:table-cell">Date</TableHead>
                <TableHead className="hidden lg:table-cell">Payment</TableHead>
-              <TableHead>Admin Stage</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -157,8 +157,8 @@ export default function AdminJobsPage() {
                      <TableCell className="hidden lg:table-cell">{job.date}</TableCell>
                      <TableCell className="hidden lg:table-cell">${job.payment.toFixed(2)}</TableCell>
                     <TableCell>
-                      <Badge variant={getAdminStageVariant(job.adminStage)}>
-                        {job.adminStage}
+                      <Badge variant={getStatusVariant(job.status)}>
+                        {job.status}
                       </Badge>
                     </TableCell>
                     <TableCell>

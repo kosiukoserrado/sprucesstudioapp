@@ -56,15 +56,15 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
 /**
  * Fetches all jobs from the 'jobs' collection.
  */
-export async function fetchJobs(adminStage?: JobStatus | JobStatus[]): Promise<Job[]> {
+export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]> {
   const jobsCollection = collection(db, 'jobs');
   let q = query(jobsCollection);
 
-  if (adminStage) {
-    if (Array.isArray(adminStage)) {
-        q = query(jobsCollection, where('adminStage', 'in', adminStage));
+  if (status) {
+    if (Array.isArray(status)) {
+        q = query(jobsCollection, where('status', 'in', status));
     } else {
-        q = query(jobsCollection, where('adminStage', '==', adminStage));
+        q = query(jobsCollection, where('status', '==', status));
     }
   }
 
@@ -91,13 +91,9 @@ export async function fetchJobs(adminStage?: JobStatus | JobStatus[]): Promise<J
       date: startDate ? formatDate(startDate.toDate()) : 'TBD',
       time: startDate ? formatTime(startDate.toDate()) : 'N/A',
       payment: payment,
-      adminStage: data.adminStage || 'Open',
+      status: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded,
-      areaM2: data.areaM2,
       assignedTo: data.assignedTo,
-      category: data.category,
-      duration: data.duration,
-      jobStatus: data.jobStatus,
     };
   });
 
@@ -134,13 +130,9 @@ export async function fetchJobById(id: string): Promise<Job | null> {
         date: startDate ? formatDate(startDate.toDate()) : 'TBD',
         time: startDate ? formatTime(startDate.toDate()) : 'TBD',
         payment: payment,
-        adminStage: data.adminStage || 'Open',
+        status: data.status || 'Open',
         cleanersNeeded: data.cleanersNeeded,
-        areaM2: data.areaM2,
         assignedTo: data.assignedTo,
-        category: data.category,
-        duration: data.duration,
-        jobStatus: data.jobStatus,
      };
   }
   
@@ -172,14 +164,10 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
       location: data.location || '',
       totalPay: payment,
       paymentPerCleaner: data.paymentPerCleaner || undefined,
-      adminStage: data.adminStage || 'Open',
+      status: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded || 1,
-      areaM2: data.areaM2 || undefined,
       startDate: startDate,
       startTime: startDate ? `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '09:00',
-      category: data.category || undefined,
-      duration: data.duration || undefined,
-      jobStatus: data.jobStatus || 'available',
     };
   }
   return null;

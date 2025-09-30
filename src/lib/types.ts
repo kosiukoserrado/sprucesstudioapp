@@ -1,7 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
 
 export type JobStatus = "Open" | "Closed" | "In progress" | "Completed";
-export type JobUrgency = "available" | "upcoming" | "urgent";
 
 export type Job = {
   id: string;
@@ -11,13 +10,9 @@ export type Job = {
   date: string;
   time: string;
   payment: number;
-  adminStage: JobStatus; // For admin view
+  status: JobStatus;
   cleanersNeeded?: number;
-  areaM2?: number;
   assignedTo?: string; // Cleaner's user ID
-  category?: string;
-  duration?: string; // in days
-  jobStatus?: JobUrgency; // For cleaner view
 };
 
 export type ApplicationStatus = "Pending" | "Accepted" | "Rejected";
@@ -50,5 +45,3 @@ export type UserProfile = {
 export async function updateApplicationStatus(applicationId: string, status: ApplicationStatus): Promise<void> {
   // Implementation will be in firestore.ts
 }
-
-    

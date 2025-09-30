@@ -47,14 +47,10 @@ const formSchema = z.object({
   location: z.string().min(1, "Location is required"),
   totalPay: z.coerce.number().min(0, "Payment must be a positive number"),
   paymentPerCleaner: z.coerce.number().optional(),
-  adminStage: z.enum(["Open", "Closed", "In progress", "Completed"]),
+  status: z.enum(["Open", "Closed", "In progress", "Completed"]),
   cleanersNeeded: z.coerce.number().int().min(1, "At least one cleaner is needed"),
-  areaM2: z.coerce.number().optional(),
   startDate: z.date({ required_error: "A start date is required." }),
   startTime: z.string().min(1, "Start time is required"),
-  category: z.string().optional(),
-  duration: z.string().optional(),
-  jobStatus: z.enum(["available", "upcoming", "urgent"]).optional(),
 });
 
 type EditJobFormValues = z.infer<typeof formSchema>;
@@ -81,7 +77,7 @@ export default function EditJobPage() {
         if (jobData) {
           form.reset({
             ...jobData,
-            totalPay: jobData.totalPay, // Correct mapping
+            totalPay: jobData.payment, // Correct mapping
           });
         } else {
           toast({ variant: "destructive", title: "Job not found" });
@@ -208,63 +204,6 @@ export default function EditJobPage() {
                         </FormItem>
                     )}
                 />
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <FormField
-                        control={form.control}
-                        name="category"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Category</FormLabel>
-                             <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Category" />
-                                </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem value="Refurbishment">Refurbishment</SelectItem>
-                                    <SelectItem value="Fitout">Fitout</SelectItem>
-                                    <SelectItem value="Post Construction">Post Construction</SelectItem>
-                                    <SelectItem value="Office">Office</SelectItem>
-                                    <SelectItem value="Childcare">Childcare</SelectItem>
-                                    <SelectItem value="School">School</SelectItem>
-                                    <SelectItem value="Residential">Residential</SelectItem>
-                                    <SelectItem value="Commercial">Commercial</SelectItem>
-                                    <SelectItem value="General">General</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="duration"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Duration (days)</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., 3" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="areaM2"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Area (m²)</FormLabel>
-                            <FormControl>
-                                <Input type="number" placeholder="e.g., 150" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <FormField
@@ -364,34 +303,10 @@ export default function EditJobPage() {
                     />
                     <FormField
                         control={form.control}
-                        name="jobStatus"
+                        name="status"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Job Status (for cleaner)</FormLabel>
-                             <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a status" />
-                                </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem value="available">Available</SelectItem>
-                                    <SelectItem value="upcoming">Upcoming</SelectItem>
-                                    <SelectItem value="urgent">Urgent</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                     <FormField
-                        control={form.control}
-                        name="adminStage"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Admin Stage</FormLabel>
+                            <FormLabel>Status</FormLabel>
                              <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                 <SelectTrigger>

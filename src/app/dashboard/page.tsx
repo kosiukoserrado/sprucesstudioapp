@@ -79,10 +79,10 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Happening Now */}
+        {/* My Current Job */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Happening Now</CardTitle>
+            <CardTitle>My Current Job</CardTitle>
             <CardDescription>Your current or next job.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -98,20 +98,14 @@ export default function DashboardPage() {
                      <Skeleton className="h-10 w-32" />
                 </div>
             ) : activeJob ? (
-              <div className="grid gap-4">
+              <div className="grid gap-2">
                 <h3 className="text-xl font-semibold">{activeJob.jobTitle}</h3>
-                <div className="grid sm:grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /> {activeJob.location}</div>
-                    <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> {activeJob.date} at {activeJob.time}</div>
-                    <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> {activeJob.duration ? `${activeJob.duration} days` : 'N/A'}</div>
-                    <div className="flex items-center gap-2 font-bold text-primary">
-                        <CircleDollarSign className="h-4 w-4" /> 
-                        ${typeof activeJob.payment === 'number' && activeJob.payment > 0 ? activeJob.payment.toFixed(2) : 'N/A'}
-                    </div>
+                <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> {activeJob.location}</p>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm pt-2">
+                    <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> {activeJob.date}</div>
+                    <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> {activeJob.time}</div>
                 </div>
-                 <Button asChild variant="link" className="p-0 justify-start h-auto">
-                    <Link href={`/dashboard/opportunities/${activeJob.id}`}>View Full Details →</Link>
-                </Button>
+                <div className="font-bold text-lg pt-2 text-primary">${typeof activeJob.payment === 'number' && activeJob.payment > 0 ? activeJob.payment.toFixed(2) : 'N/A'}</div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg">
@@ -207,5 +201,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
