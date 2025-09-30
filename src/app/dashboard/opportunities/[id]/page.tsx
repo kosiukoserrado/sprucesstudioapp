@@ -75,25 +75,29 @@ export default function OpportunityDetailPage() {
     return (
       <div className="space-y-6">
          <div className="flex">
-            <Skeleton className="h-10 w-48" />
+             <Button variant="outline" asChild>
+                <Link href="/dashboard/opportunities"><ArrowLeft className="mr-2 h-4 w-4" />Back to Opportunities</Link>
+            </Button>
         </div>
         <Card>
             <CardHeader>
-                <Skeleton className="h-8 w-2/3 mb-4" />
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-5 w-4/5" />
+                <Skeleton className="h-8 w-2/3" />
             </CardHeader>
-            <CardContent className="space-y-4 pt-6">
+            <CardContent className="space-y-6">
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                </div>
                 <div className="grid grid-cols-2 gap-4">
-                    <Skeleton className="h-6 w-full" />
-                    <Skeleton className="h-6 w-full" />
-                    <Skeleton className="h-6 w-full" />
-                    <Skeleton className="h-6 w-full" />
+                    <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
+                    <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
+                    <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
+                    <div className="flex items-center gap-2"><Skeleton className="h-5 w-5 rounded-full" /><Skeleton className="h-4 w-24" /></div>
                 </div>
             </CardContent>
             <CardFooter>
-                 <Skeleton className="h-12 w-full" />
+                 <Skeleton className="h-12 w-full rounded-md" />
             </CardFooter>
         </Card>
       </div>
@@ -139,7 +143,7 @@ export default function OpportunityDetailPage() {
                 <div className="flex items-center gap-2"><MapPin className="h-5 w-5" /> <span>{job.location}</span></div>
                 <div className="flex items-center gap-2"><Calendar className="h-5 w-5" /> <span>{job.date}</span></div>
                 <div className="flex items-center gap-2"><Clock className="h-5 w-5" /> <span>{job.time}</span></div>
-                 <div className="flex items-center gap-2 font-bold text-primary text-lg">
+                 <div className="flex items-center gap-2 font-bold text-lg text-primary">
                     <CircleDollarSign className="h-6 w-6" />
                     <span>{job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}</span>
                 </div>
