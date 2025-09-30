@@ -1,4 +1,6 @@
+"use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,13 +11,56 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { activeJob, applications, opportunities, getJobById } from "@/lib/data";
 import { JobCard } from "@/components/dashboard/job-card";
 import { Clock, MapPin, Calendar, CircleDollarSign, Smile, Search } from "lucide-react";
+import { fetchJobs, fetchApplicationsByUserId, fetchJobById } from "@/lib/firebase/firestore";
+import type { Job, Application } from "@/lib/types";
+import { useAuth } from "@/hooks/use-auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
-  const recentApplications = applications.slice(0, 3);
-  const opportunitiesPreview = opportunities.slice(0, 2);
+  const { user } = useAuth();
+  const [activeJob, setActiveJob] = useState<Job | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [opportunities, setOpportunities] = useState<Job[]>([]);
+  const [recentApplicationsWithJobs, setRecentApplicationsWithJobs] = useState<{app: Application, job: Job}[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        // In a real app, logic to determine the "active" job would be more complex.
+        // For now, let's just fetch one job and set it as active.
+        const allJobs = await fetchJobs();
+        if (allJobs.length > 0) {
+            setActiveJob(allJobs[0]);
+            setOpportunities(allJobs.slice(1, 3)); // Show next 2 as preview
+        }
+        
+        const userApplications = await fetchApplicationsByUserId(user.uid);
+        setApplications(userApplications);
+
+        const recentApps = userApplications.slice(0, 3);
+        const appsWithJobs = await Promise.all(
+          recentApps.map(async (app) => {
+            const job = await fetchJobById(app.jobId);
+            return { app, job: job! };
+          })
+        );
+        setRecentApplicationsWithJobs(appsWithJobs.filter(item => item.job));
+
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadDashboardData();
+  }, [user]);
+
   const pendingCount = applications.filter(a => a.status === 'Pending').length;
 
   return (
@@ -33,7 +78,18 @@ export default function DashboardPage() {
             <CardDescription>Your current or next job.</CardDescription>
           </CardHeader>
           <CardContent>
-            {activeJob ? (
+            {loading ? (
+                <div className="space-y-4">
+                    <Skeleton className="h-6 w-3/4" />
+                    <div className="grid sm:grid-cols-2 gap-4">
+                        <Skeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-full" />
+                    </div>
+                     <Skeleton className="h-10 w-full" />
+                </div>
+            ) : activeJob ? (
               <div className="grid gap-4">
                 <h3 className="text-xl font-semibold">{activeJob.title}</h3>
                 <div className="grid sm:grid-cols-2 gap-4 text-sm">
@@ -61,23 +117,26 @@ export default function DashboardPage() {
             <CardDescription>A summary of your applications.</CardDescription>
           </CardHeader>
           <CardContent>
-             {applications.length > 0 ? (
+             {loading ? (
+                <div className="space-y-4">
+                    <Skeleton className="h-16 w-full rounded-lg" />
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-full" />
+                </div>
+             ) : applications.length > 0 ? (
                 <div className="space-y-4">
                     <div className="text-center p-4 bg-muted rounded-lg">
                         <div className="text-3xl font-bold">{pendingCount}</div>
                         <p className="text-sm text-muted-foreground">Applications Pending</p>
                     </div>
                     <ul className="space-y-2">
-                        {recentApplications.map(app => {
-                           const job = getJobById(app.jobId);
-                           if (!job) return null;
-                           return (
-                             <li key={app.id} className="flex justify-between items-center text-sm">
-                               <span>{job.title}</span>
-                               <Badge variant={app.status === 'Accepted' ? 'default' : app.status === 'Rejected' ? 'destructive' : 'secondary'} className={app.status === 'Accepted' ? 'bg-green-600/80 text-white' : ''}>{app.status}</Badge>
+                        {recentApplicationsWithJobs.map(item => (
+                             <li key={item.app.id} className="flex justify-between items-center text-sm">
+                               <span>{item.job.title}</span>
+                               <Badge variant={item.app.status === 'Accepted' ? 'default' : item.app.status === 'Rejected' ? 'destructive' : 'secondary'} className={item.app.status === 'Accepted' ? 'bg-green-600/80 text-white' : ''}>{item.app.status}</Badge>
                              </li>
-                           );
-                        })}
+                        ))}
                     </ul>
                 </div>
             ) : (
@@ -103,9 +162,14 @@ export default function DashboardPage() {
             <Link href="/dashboard/opportunities">View All</Link>
           </Button>
         </div>
-        {opportunitiesPreview.length > 0 ? (
+        {loading ? (
             <div className="grid gap-6 md:grid-cols-2">
-              {opportunitiesPreview.map(job => <JobCard key={job.id} job={job} />)}
+                <Skeleton className="h-56 w-full" />
+                <Skeleton className="h-56 w-full" />
+            </div>
+        ) : opportunities.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2">
+              {opportunities.map(job => <JobCard key={job.id} job={job} />)}
             </div>
         ) : (
              <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg bg-card">

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { User, Bell, LifeBuoy } from "lucide-react";
 import {
@@ -12,12 +14,32 @@ import {
 import { Button } from "@/components/ui/button";
 import { SidebarNav } from "@/components/dashboard/sidebar-nav";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, loading, signOut } = useAuth();
+  const router = useRouter();
+
+  if (loading) {
+    return <div>Loading...</div>; // Or a proper loading skeleton
+  }
+
+  if (!user) {
+    router.push('/login');
+    return null;
+  }
+
+  const getInitials = (email: string | null | undefined) => {
+    if (!email) return "AD";
+    return email.substring(0, 2).toUpperCase();
+  };
+
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -34,13 +56,16 @@ export default function DashboardLayout({
         </SidebarContent>
         <SidebarFooter className="flex items-center gap-2">
            <Avatar className="group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10">
-              <AvatarImage src="https://picsum.photos/seed/user-avatar/100/100" alt="Alex Doe" />
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} alt={user.email || 'User'} />
+              <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
             </Avatar>
            <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="font-semibold text-sm">Alex Doe</span>
-                <span className="text-xs text-sidebar-foreground/70">alex.doe@example.com</span>
+                <span className="font-semibold text-sm">{user.displayName || user.email}</span>
+                <span className="text-xs text-sidebar-foreground/70">{user.email}</span>
            </div>
+           <Button variant="ghost" size="icon" onClick={signOut} className="ml-auto group-data-[collapsible=icon]:hidden">
+              <User className="h-5 w-5" />
+           </Button>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
@@ -54,8 +79,8 @@ export default function DashboardLayout({
               <span className="sr-only">Toggle notifications</span>
             </Button>
              <Avatar>
-              <AvatarImage src="https://picsum.photos/seed/user-avatar/100/100" alt="Alex Doe" />
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} alt={user.email || 'User'} />
+              <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
             </Avatar>
           </div>
         </header>

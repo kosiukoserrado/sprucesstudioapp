@@ -9,24 +9,47 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LifeBuoy } from 'lucide-react';
+import { LifeBuoy, Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, signUp, signIn, loading } = useAuth();
+  const { toast } = useToast();
+  
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [signupName, setSignupName] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd have authentication logic here.
-    // On success, you would redirect to the dashboard.
-    router.push('/dashboard');
+    try {
+      await signIn(loginEmail, loginPassword);
+      toast({ title: "Login Successful", description: "Welcome back!" });
+      router.push('/dashboard');
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Login Failed", description: error.message });
+    }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd have signup logic here.
-    // On success, you would redirect to the dashboard.
-    router.push('/dashboard');
+    try {
+      await signUp(signupEmail, signupPassword, signupName);
+      toast({ title: "Sign Up Successful", description: "Your account has been created." });
+      router.push('/dashboard');
+    } catch (error: any) {
+       toast({ variant: "destructive", title: "Sign Up Failed", description: error.message });
+    }
   };
+
+  if (user) {
+    router.push('/dashboard');
+    return null;
+  }
   
   return (
     <div className="w-full lg:grid lg:min-h-[100vh] lg:grid-cols-2">
@@ -55,7 +78,7 @@ export default function LoginPage() {
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="email-login">Email</Label>
-                      <Input id="email-login" type="email" placeholder="m@example.com" required />
+                      <Input id="email-login" type="email" placeholder="m@example.com" required value={loginEmail} onChange={e => setLoginEmail(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center">
@@ -64,10 +87,10 @@ export default function LoginPage() {
                           Forgot your password?
                         </Link>
                       </div>
-                      <Input id="password-login" type="password" required />
+                      <Input id="password-login" type="password" required value={loginPassword} onChange={e => setLoginPassword(e.target.value)}/>
                     </div>
-                    <Button type="submit" className="w-full">
-                      Login
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? <Loader2 className="animate-spin" /> : 'Login'}
                     </Button>
                   </form>
                 </CardContent>
@@ -85,18 +108,18 @@ export default function LoginPage() {
                    <form onSubmit={handleSignUp} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="name-signup">Full Name</Label>
-                      <Input id="name-signup" placeholder="Alex Doe" required />
+                      <Input id="name-signup" placeholder="Alex Doe" required value={signupName} onChange={e => setSignupName(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email-signup">Email</Label>
-                      <Input id="email-signup" type="email" placeholder="m@example.com" required />
+                      <Input id="email-signup" type="email" placeholder="m@example.com" required value={signupEmail} onChange={e => setSignupEmail(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="password-signup">Password</Label>
-                      <Input id="password-signup" type="password" required />
+                      <Input id="password-signup" type="password" required value={signupPassword} onChange={e => setSignupPassword(e.target.value)} />
                     </div>
-                    <Button type="submit" className="w-full">
-                      Create an account
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? <Loader2 className="animate-spin" /> : 'Create an account'}
                     </Button>
                   </form>
                 </CardContent>

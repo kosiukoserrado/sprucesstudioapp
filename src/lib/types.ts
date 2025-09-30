@@ -15,6 +15,7 @@ export type ApplicationStatus = "Pending" | "Accepted" | "Rejected";
 export type Application = {
   id: string;
   jobId: string;
+  userId: string; // Added to link application to a user
   dateApplied: string;
   status: ApplicationStatus;
 };

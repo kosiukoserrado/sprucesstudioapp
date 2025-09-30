@@ -1,9 +1,32 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { JobCard } from "@/components/dashboard/job-card";
-import { opportunities } from "@/lib/data";
+import { fetchJobs } from "@/lib/firebase/firestore";
+import type { Job } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function OpportunitiesPage() {
+  const [opportunities, setOpportunities] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getJobs = async () => {
+      try {
+        const jobs = await fetchJobs();
+        // Assuming all fetched jobs are opportunities for now
+        setOpportunities(jobs);
+      } catch (error) {
+        console.error("Error fetching job opportunities:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getJobs();
+  }, []);
+
   return (
     <div className="space-y-8">
       <div className="space-y-2">
@@ -16,7 +39,19 @@ export default function OpportunitiesPage() {
         <Input placeholder="Search by postcode, job type..." className="pl-10" />
       </div>
 
-      {opportunities.length > 0 ? (
+      {loading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex flex-col space-y-3">
+              <Skeleton className="h-[125px] w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : opportunities.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {opportunities.map((job) => (
             <JobCard key={job.id} job={job} />
