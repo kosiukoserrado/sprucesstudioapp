@@ -81,7 +81,7 @@ export default function EditJobPage() {
         if (jobData) {
           form.reset({
             ...jobData,
-            totalPay: jobData.payment, // Map payment to totalPay
+            totalPay: jobData.totalPay, // Correct mapping
           });
         } else {
           toast({ variant: "destructive", title: "Job not found" });
@@ -422,5 +422,3 @@ export default function EditJobPage() {
     </div>
   );
 }
-
-    

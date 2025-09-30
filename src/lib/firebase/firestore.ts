@@ -46,6 +46,7 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
     ...restJobData,
+    payment: jobData.totalPay, // Use totalPay as payment
     startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : null,
   });
   return docRef.id;
@@ -73,7 +74,7 @@ export async function fetchJobs(adminStage?: JobStatus | JobStatus[]): Promise<J
     const data = doc.data();
     
     let payment = 0;
-    const paymentValue = data.totalPay || data.paymentPerCleaner || 0;
+    const paymentValue = data.payment || data.totalPay || data.paymentPerCleaner || 0;
     if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
     } else if (typeof paymentValue === 'number') {
@@ -116,7 +117,7 @@ export async function fetchJobById(id: string): Promise<Job | null> {
     const data = jobSnap.data();
     
     let payment = 0;
-    const paymentValue = data.totalPay || data.paymentPerCleaner || 0;
+    const paymentValue = data.payment || data.totalPay || data.paymentPerCleaner || 0;
      if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
     } else if (typeof paymentValue === 'number') {
@@ -157,7 +158,7 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
     const startDate = data.startDate?.toDate(); // Convert Timestamp to Date
     
     let payment = 0;
-    const paymentValue = data.totalPay || data.paymentPerCleaner || 0;
+    const paymentValue = data.payment || data.totalPay || data.paymentPerCleaner || 0;
      if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
     } else if (typeof paymentValue === 'number') {
@@ -203,8 +204,8 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
      updateData.startDate = Timestamp.fromDate(startDate);
   }
 
-  if (restJobData.totalPay) {
-      updateData.totalPay = restJobData.totalPay;
+  if (jobData.totalPay) {
+      updateData.payment = jobData.totalPay;
   }
 
 
@@ -371,5 +372,3 @@ export async function updateUserProfile(userId: string, profileData: Partial<Use
     const userDocRef = doc(db, 'users', userId);
     await setDoc(userDocRef, profileData, { merge: true });
 }
-
-    
