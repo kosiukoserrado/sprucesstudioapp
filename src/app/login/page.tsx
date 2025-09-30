@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -24,6 +24,12 @@ export default function LoginPage() {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
 
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -46,9 +52,16 @@ export default function LoginPage() {
     }
   };
 
+  if (loading) {
+     return (
+       <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   if (user) {
-    router.push('/dashboard');
-    return null;
+    return null; // Or a loader, while redirecting
   }
   
   return (
@@ -139,7 +152,7 @@ export default function LoginPage() {
             />
             <div className="absolute inset-0 bg-zinc-900/60 rounded-lg flex flex-col items-center justify-center text-white p-8 text-center">
                  <LifeBuoy className="w-16 h-16 text-primary mb-4" />
-                 <h2 className="text-4xl font-bold mb-2">SprucesApp Portal</h2>
+                 <h2 className="text-4xl font-bold mb-2">SprucesApp</h2>
                  <p className="text-xl">The all-in-one platform for professional cleaners.</p>
             </div>
         </div>

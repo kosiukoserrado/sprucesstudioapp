@@ -32,12 +32,10 @@ export default function DashboardPage() {
       
       try {
         setLoading(true);
-        // In a real app, logic to determine the "active" job would be more complex.
-        // For now, let's just fetch one job and set it as active.
         const allJobs = await fetchJobs();
         if (allJobs.length > 0) {
             setActiveJob(allJobs[0]);
-            setOpportunities(allJobs.slice(1, 3)); // Show next 2 as preview
+            setOpportunities(allJobs.slice(1, 3)); 
         }
         
         const userApplications = await fetchApplicationsByUserId(user.uid);
@@ -58,7 +56,9 @@ export default function DashboardPage() {
         setLoading(false);
       }
     };
-    loadDashboardData();
+    if (user) {
+      loadDashboardData();
+    }
   }, [user]);
 
   const pendingCount = applications.filter(a => a.status === 'Pending').length;

@@ -37,6 +37,7 @@ export default function PursuingPage() {
   useEffect(() => {
     const getApplications = async () => {
       if (!user) return;
+      setLoading(true);
       try {
         const apps = await fetchApplicationsByUserId(user.uid);
         const appsWithJobs = await Promise.all(
@@ -52,7 +53,9 @@ export default function PursuingPage() {
         setLoading(false);
       }
     };
-    getApplications();
+    if (user) {
+        getApplications();
+    }
   }, [user]);
 
   return (
@@ -76,7 +79,7 @@ export default function PursuingPage() {
           </TableHeader>
           <TableBody>
             {loading ? (
-              [...Array(3)].map((_, i) => (
+              [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
                   <TableCell><Skeleton className="h-5 w-48" /></TableCell>
                   <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-24" /></TableCell>

@@ -14,9 +14,9 @@ export default function OpportunitiesPage() {
 
   useEffect(() => {
     const getJobs = async () => {
+      setLoading(true);
       try {
         const jobs = await fetchJobs();
-        // Assuming all fetched jobs are opportunities for now
         setOpportunities(jobs);
       } catch (error) {
         console.error("Error fetching job opportunities:", error);
@@ -41,9 +41,9 @@ export default function OpportunitiesPage() {
 
       {loading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <div key={i} className="flex flex-col space-y-3">
-              <Skeleton className="h-[125px] w-full rounded-xl" />
+              <Skeleton className="h-[280px] w-full rounded-xl" />
               <div className="space-y-2">
                 <Skeleton className="h-4 w-[250px]" />
                 <Skeleton className="h-4 w-[200px]" />
