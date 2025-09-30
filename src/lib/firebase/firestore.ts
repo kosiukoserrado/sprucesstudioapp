@@ -15,11 +15,11 @@ export async function fetchJobs(): Promise<Job[]> {
     const payment = data.payment ? parseFloat(data.payment) : 0;
     return { 
       id: doc.id,
-      jobTitle: data.jobTitle,
-      jobDescription: data.jobDescription,
-      location: data.location,
-      date: data.date,
-      time: data.time,
+      jobTitle: data.jobTitle || 'No Title',
+      jobDescription: data.jobDescription || 'No Description',
+      location: data.location || 'No Location',
+      date: data.date || 'N/A',
+      time: data.time || 'N/A',
       payment: isNaN(payment) ? 0 : payment,
      } as Job;
   });
@@ -37,11 +37,11 @@ export async function fetchJobById(id: string): Promise<Job | null> {
     const payment = data.payment ? parseFloat(data.payment) : 0;
     return { 
         id: jobSnap.id,
-        jobTitle: data.jobTitle,
-        jobDescription: data.jobDescription,
-        location: data.location,
-        date: data.date,
-        time: data.time,
+        jobTitle: data.jobTitle || 'No Title',
+        jobDescription: data.jobDescription || 'No Description',
+        location: data.location || 'No Location',
+        date: data.date || 'N/A',
+        time: data.time || 'N/A',
         payment: isNaN(payment) ? 0 : payment,
      } as Job;
   }
