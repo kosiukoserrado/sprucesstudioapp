@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Clock, MapPin, Calendar, CircleDollarSign, AlertTriangle } from "lucide-react";
+import { Clock, MapPin, Calendar, CircleDollarSign, AlertTriangle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -73,20 +73,24 @@ export default function OpportunityDetailPage() {
 
   if (loading) {
     return (
-      <div className="space-y-8">
-         <div>
+      <div className="space-y-6">
+         <div className="flex">
             <Skeleton className="h-10 w-48" />
         </div>
         <Card>
             <CardHeader>
-                <Skeleton className="h-8 w-2/3 mb-2" />
-                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-8 w-2/3 mb-4" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-4/5" />
             </CardHeader>
-            <CardContent className="space-y-4">
-                <Skeleton className="h-5 w-1/3" />
-                <Skeleton className="h-5 w-1/3" />
-                <Skeleton className="h-5 w-1/3" />
-                <Skeleton className="h-6 w-1/4" />
+            <CardContent className="space-y-4 pt-6">
+                <div className="grid grid-cols-2 gap-4">
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-full" />
+                </div>
             </CardContent>
             <CardFooter>
                  <Skeleton className="h-12 w-full" />
@@ -117,25 +121,28 @@ export default function OpportunityDetailPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
        <div>
         <Button variant="outline" asChild>
-            <Link href="/dashboard/opportunities">← Back to Opportunities</Link>
+            <Link href="/dashboard/opportunities"><ArrowLeft className="mr-2 h-4 w-4" />Back to Opportunities</Link>
         </Button>
        </div>
 
-      <Card>
+      <Card className="bg-card">
         <CardHeader>
           <CardTitle className="text-3xl font-headline">{job.jobTitle}</CardTitle>
-          <CardDescription className="text-base pt-2">{job.jobDescription}</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2 pt-4">
-            <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-5 w-5" /> <span>{job.location}</span></div>
-            <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-5 w-5" /> <span>{job.date}</span></div>
-            <div className="flex items-center gap-2 text-muted-foreground"><Clock className="h-5 w-5" /> <span>{job.time}</span></div>
-             <div className="flex items-center gap-2 font-bold text-primary text-lg">
-                <CircleDollarSign className="h-6 w-6" /> 
-                <span>£{job.payment > 0 ? job.payment.toFixed(2) : 'N/A'}</span>
+        <CardContent className="space-y-6">
+            <p className="text-muted-foreground">{job.jobDescription}</p>
+
+            <div className="grid gap-4 md:grid-cols-2 text-muted-foreground">
+                <div className="flex items-center gap-2"><MapPin className="h-5 w-5" /> <span>{job.location}</span></div>
+                <div className="flex items-center gap-2"><Calendar className="h-5 w-5" /> <span>{job.date}</span></div>
+                <div className="flex items-center gap-2"><Clock className="h-5 w-5" /> <span>{job.time}</span></div>
+                 <div className="flex items-center gap-2 font-bold text-primary text-lg">
+                    <CircleDollarSign className="h-6 w-6" />
+                    <span>{job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}</span>
+                </div>
             </div>
         </CardContent>
         <CardFooter>
