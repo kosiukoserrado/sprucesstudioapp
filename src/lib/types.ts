@@ -1,7 +1,8 @@
 import type { Timestamp } from 'firebase/firestore';
 
 export type JobStatus = "Open" | "Closed" | "In progress" | "Completed";
-export type JobCategory = "Refurbishment" | "Fitout" | "Builders Clean" | "Sparkle Clean" | "Final Clean";
+export type JobCategory = "Refurbishment" | "Fitout" | "Builders Clean" | "Sparkle Clean" | "Final Clean" | "Post Construction";
+
 export type PublicJobStatus = "Available" | "Upcoming" | "Urgent";
 
 export type Job = {

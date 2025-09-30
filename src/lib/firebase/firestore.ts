@@ -22,11 +22,12 @@ function formatTime(timestamp: Timestamp | Date): string {
     }).format(date);
 }
 
-type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'payment' | 'adminStage'>> & {
+type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'payment' | 'adminStage' | 'jobDescription'>> & {
   startDate?: Date;
   startTime?: string;
   totalPay?: number;
   adminStage?: JobStatus;
+  jobDescription?: string;
 };
 
 
@@ -35,7 +36,7 @@ type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'p
  * @param jobData - The data for the new job.
  */
 export async function createJob(jobData: CreateJobData): Promise<string> {
-  const { startDate, startTime, totalPay, adminStage, ...restJobData } = jobData;
+  const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, ...restJobData } = jobData;
   
   let combinedDateTime: Date | null = null;
   if (startDate && startTime) {
@@ -49,9 +50,13 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
     ...restJobData,
+    fullDescription: jobDescription || '',
+    days: duration || null,
+    displayStatus: jobStatus || 'Available',
     payment: totalPay || 0,
-    startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : null,
-    status: adminStage || 'Open', // Save adminStage as 'status'
+    startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : serverTimestamp(),
+    status: adminStage || 'Open', 
+    createdAt: serverTimestamp(),
   });
   return docRef.id;
 }
@@ -77,26 +82,23 @@ export async function fetchJobs(adminStageFilter?: JobStatus | JobStatus[]): Pro
   const jobs: Job[] = jobSnapshot.docs.map((doc) => {
     const data = doc.data();
     
-    const paymentValue = data.payment || 0;
-    const payment = typeof paymentValue === 'number' ? paymentValue : parseFloat(paymentValue);
-
-    const startDate = data.startDate;
+    const startDate = data.startDate || data.createdAt;
 
     return {
       id: doc.id,
-      jobTitle: data.jobTitle || 'Untitled Job',
-      jobDescription: data.jobDescription || 'No description provided.',
+      jobTitle: data.jobTitle || `Project at ${data.location || 'Unknown Location'}`,
+      jobDescription: data.fullDescription || 'No description provided.',
       location: data.location || 'No location specified',
       date: startDate ? formatDate(startDate.toDate()) : 'TBD',
       time: startDate ? formatTime(startDate.toDate()) : 'N/A',
-      payment: payment,
+      payment: data.payment || 0,
       adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded,
       assignedTo: data.assignedTo,
       category: data.category,
-      duration: data.duration,
+      duration: data.days?.toString(),
       areaM2: data.areaM2,
-      jobStatus: data.jobStatus,
+      jobStatus: data.displayStatus,
     };
   });
 
@@ -115,26 +117,23 @@ export async function fetchJobById(id: string): Promise<Job | null> {
   if (jobSnap.exists()) {
     const data = jobSnap.data();
     
-    const paymentValue = data.payment || 0;
-    const payment = typeof paymentValue === 'number' ? paymentValue : parseFloat(paymentValue);
-    
-    const startDate = data.startDate;
+    const startDate = data.startDate || data.createdAt;
 
     return { 
         id: jobSnap.id,
-        jobTitle: data.jobTitle || 'Untitled Job',
-        jobDescription: data.jobDescription || 'No description provided.',
+        jobTitle: data.jobTitle || `Project at ${data.location || 'Unknown Location'}`,
+        jobDescription: data.fullDescription || 'No description provided.',
         location: data.location || 'No location specified',
         date: startDate ? formatDate(startDate.toDate()) : 'TBD',
         time: startDate ? formatTime(startDate.toDate()) : 'TBD',
-        payment: payment,
+        payment: data.payment || 0,
         adminStage: data.status || 'Open',
         cleanersNeeded: data.cleanersNeeded,
         assignedTo: data.assignedTo,
         category: data.category,
-        duration: data.duration,
+        duration: data.days?.toString(),
         areaM2: data.areaM2,
-        jobStatus: data.jobStatus,
+        jobStatus: data.displayStatus,
      };
   }
   
@@ -149,26 +148,23 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
 
   if (jobSnap.exists()) {
     const data = jobSnap.data();
-    const startDate = data.startDate?.toDate(); // Convert Timestamp to Date
-    
-    const paymentValue = data.payment || 0;
-    const payment = typeof paymentValue === 'number' ? paymentValue : parseFloat(paymentValue);
+    const startDate = (data.startDate || data.createdAt)?.toDate(); // Convert Timestamp to Date
     
     return {
       id: jobSnap.id,
       jobTitle: data.jobTitle || '',
-      jobDescription: data.jobDescription || '',
+      jobDescription: data.fullDescription || '',
       location: data.location || '',
-      totalPay: payment,
+      totalPay: data.payment || 0,
       paymentPerCleaner: data.paymentPerCleaner || undefined,
       adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded || 1,
       startDate: startDate,
       startTime: startDate ? `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '09:00',
       category: data.category,
-      duration: data.duration,
+      duration: data.days?.toString(),
       areaM2: data.areaM2,
-      jobStatus: data.jobStatus,
+      jobStatus: data.displayStatus,
     };
   }
   return null;
@@ -180,7 +176,7 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
  * @param jobData - The data to update.
  */
 export async function updateJob(id: string, jobData: Partial<CreateJobData>): Promise<void> {
-  const { startDate, startTime, totalPay, adminStage, ...restJobData } = jobData;
+  const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, ...restJobData } = jobData;
   
   let updateData: any = { ...restJobData };
 
@@ -213,6 +209,18 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
   
   if (adminStage) {
     updateData.status = adminStage;
+  }
+
+  if (jobDescription !== undefined) {
+    updateData.fullDescription = jobDescription;
+  }
+
+  if (duration !== undefined) {
+    updateData.days = duration;
+  }
+
+  if (jobStatus !== undefined) {
+    updateData.displayStatus = jobStatus;
   }
 
 
@@ -379,5 +387,3 @@ export async function updateUserProfile(userId: string, profileData: Partial<Use
     const userDocRef = doc(db, 'users', userId);
     await setDoc(userDocRef, profileData, { merge: true });
 }
-
-    

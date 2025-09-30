@@ -49,7 +49,7 @@ const formSchema = z.object({
   cleanersNeeded: z.coerce.number().int().optional(),
   startDate: z.date().optional(),
   startTime: z.string().optional(),
-  category: z.enum(["Refurbishment", "Fitout", "Builders Clean", "Sparkle Clean", "Final Clean"]).optional(),
+  category: z.enum(["Refurbishment", "Fitout", "Builders Clean", "Sparkle Clean", "Final Clean", "Post Construction"]).optional(),
   duration: z.string().optional(),
   areaM2: z.coerce.number().optional(),
   jobStatus: z.enum(["Available", "Upcoming", "Urgent"]).optional(),
@@ -175,6 +175,7 @@ export default function NewJobPage() {
                                     <SelectItem value="Builders Clean">Builders Clean</SelectItem>
                                     <SelectItem value="Sparkle Clean">Sparkle Clean</SelectItem>
                                     <SelectItem value="Final Clean">Final Clean</SelectItem>
+                                    <SelectItem value="Post Construction">Post Construction</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage />
