@@ -77,13 +77,8 @@ export async function fetchJobs(adminStageFilter?: JobStatus | JobStatus[]): Pro
   const jobs: Job[] = jobSnapshot.docs.map((doc) => {
     const data = doc.data();
     
-    let payment = 0;
-    const paymentValue = data.payment || data.totalPay;
-    if (typeof paymentValue === 'string') {
-        payment = parseFloat(paymentValue) || 0;
-    } else if (typeof paymentValue === 'number') {
-        payment = paymentValue;
-    }
+    const paymentValue = data.payment || 0;
+    const payment = typeof paymentValue === 'number' ? paymentValue : parseFloat(paymentValue);
 
     const startDate = data.startDate;
 
@@ -120,13 +115,8 @@ export async function fetchJobById(id: string): Promise<Job | null> {
   if (jobSnap.exists()) {
     const data = jobSnap.data();
     
-    let payment = 0;
-    const paymentValue = data.payment || data.totalPay;
-     if (typeof paymentValue === 'string') {
-        payment = parseFloat(paymentValue) || 0;
-    } else if (typeof paymentValue === 'number') {
-        payment = paymentValue;
-    }
+    const paymentValue = data.payment || 0;
+    const payment = typeof paymentValue === 'number' ? paymentValue : parseFloat(paymentValue);
     
     const startDate = data.startDate;
 
@@ -161,13 +151,8 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
     const data = jobSnap.data();
     const startDate = data.startDate?.toDate(); // Convert Timestamp to Date
     
-    let payment = 0;
-    const paymentValue = data.payment || data.totalPay || 0;
-     if (typeof paymentValue === 'string') {
-        payment = parseFloat(paymentValue) || 0;
-    } else if (typeof paymentValue === 'number') {
-        payment = paymentValue;
-    }
+    const paymentValue = data.payment || 0;
+    const payment = typeof paymentValue === 'number' ? paymentValue : parseFloat(paymentValue);
     
     return {
       id: jobSnap.id,
