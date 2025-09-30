@@ -64,7 +64,7 @@ export default function AdminLayout({
       <Sidebar>
         <SidebarHeader>
           <Link href="/admin" className="flex items-center gap-2" prefetch={false}>
-            <h2 className="font-bold text-2xl text-foreground group-data-[collapsible=icon]:hidden font-headline">
+            <h2 className="font-bold text-2xl text-sidebar-foreground group-data-[collapsible=icon]:hidden font-headline">
               spruces.
             </h2>
           </Link>

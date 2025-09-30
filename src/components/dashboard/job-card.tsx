@@ -11,9 +11,9 @@ interface JobCardProps {
 
 export function JobCard({ job }: JobCardProps) {
   return (
-    <Card className="flex flex-col justify-between">
+    <Card className="flex flex-col justify-between bg-card">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">{job.jobTitle}</CardTitle>
+        <CardTitle className="text-lg font-semibold text-card-foreground">{job.jobTitle}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
@@ -25,13 +25,13 @@ export function JobCard({ job }: JobCardProps) {
           <span>Starts: {job.date}</span>
         </div>
         <div className="flex items-center gap-2">
-           <Badge variant={job.payment > 0 ? "default" : "secondary"} className={job.payment > 0 ? "bg-green-100 text-green-800" : ""}>
+           <Badge variant={job.payment > 0 ? "secondary" : "outline"} className="bg-lime-200 text-lime-900">
                 <CircleDollarSign className="h-4 w-4 mr-1" />
                 {job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}
            </Badge>
         </div>
          <div className="flex items-center gap-2">
-             <Badge variant="outline" className="text-green-600 border-green-200">
+             <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
                 <CheckCircle className="h-4 w-4 mr-1" />
                 {job.status || 'Available'}
              </Badge>

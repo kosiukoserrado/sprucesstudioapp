@@ -188,14 +188,14 @@ export default function LoginPage() {
       <div className="hidden bg-muted lg:flex lg:flex-col lg:items-center lg:justify-center p-10">
         <div className="relative w-full h-full">
             <Image
-                src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=2070&auto=format&fit=crop"
-                alt="Person cleaning a window"
+                src="https://images.unsplash.com/photo-1516937998395-699e69387a24?q=80&w=2070&auto=format&fit=crop"
+                alt="Green plants on a wall"
                 fill
                 className="object-cover rounded-lg"
-                data-ai-hint="person cleaning"
+                data-ai-hint="green plants"
             />
             <div className="absolute inset-0 bg-zinc-900/60 rounded-lg flex flex-col items-center justify-center text-white p-8 text-center">
-                 <h2 className="text-5xl font-bold mb-2 font-headline">spruces.</h2>
+                 <h2 className="text-5xl font-bold mb-2 font-headline" style={{color: "#c7de6b"}}>spruces.</h2>
                  <p className="text-xl">The all-in-one platform for professional cleaners.</p>
             </div>
         </div>

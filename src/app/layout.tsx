@@ -2,15 +2,15 @@ import type { Metadata } from 'next';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/hooks/use-auth';
 import './globals.css';
-import { Belleza, Alegreya } from 'next/font/google';
+import { Poppins, Inter } from 'next/font/google';
 
-const belleza = Belleza({
+const poppins = Poppins({
   subsets: ['latin'],
   variable: '--font-headline',
-  weight: '400',
+  weight: '700',
 });
 
-const alegreya = Alegreya({
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-body',
 });
@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${belleza.variable} ${alegreya.variable} antialiased`}>
+      <body className={`${poppins.variable} ${inter.variable} antialiased`}>
         <AuthProvider>
           {children}
           <Toaster />

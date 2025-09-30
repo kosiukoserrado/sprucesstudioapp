@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&family=Belleza&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Inter:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,34 +8,34 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
+    --card: 65 62% 91%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 165 27% 17%;
+    --primary: 168 64% 12%; /* Forest */
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 71 63% 65%; /* Lime */
+    --accent-foreground: 168 64% 12%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 165 27% 17%;
+    --ring: 71 63% 65%; /* Lime */
 
     --radius: 0.5rem;
     
-    --sidebar-background: 240 4.8% 95.9%;
-    --sidebar-foreground: 240 5.9% 10%;
-    --sidebar-primary: 165 27% 17%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 100%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5.9% 90%;
-    --sidebar-ring: 165 27% 17%;
+    --sidebar-background: 168 64% 12%; /* Forest */
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 71 63% 65%; /* Lime */
+    --sidebar-primary-foreground: 168 64% 12%;
+    --sidebar-accent: 168 64% 18%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 168 64% 18%;
+    --sidebar-ring: 71 63% 65%;
   }
 
   .dark {
@@ -45,8 +45,8 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 165 27% 17%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 71 63% 65%; /* Lime */
+    --primary-foreground: 168 64% 12%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
@@ -57,16 +57,16 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 165 27% 17%;
+    --ring: 71 63% 65%; /* Lime */
     
     --sidebar-background: 240 10% 3.9%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 165 27% 17%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary: 71 63% 65%; /* Lime */
+    --sidebar-primary-foreground: 168 64% 12%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 165 27% 17%;
+    --sidebar-ring: 71 63% 65%;
   }
 }
 
@@ -76,9 +76,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Alegreya', serif;
+    font-family: var(--font-body);
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Belleza', sans-serif;
+    font-family: var(--font-headline);
   }
 }
