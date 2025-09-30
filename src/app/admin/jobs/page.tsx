@@ -58,7 +58,7 @@ export default function AdminJobsPage() {
 
   useEffect(() => {
     loadJobs();
-  }, []);
+  }, [toast]);
   
   const handleDeleteClick = (job: Job) => {
     setSelectedJob(job);

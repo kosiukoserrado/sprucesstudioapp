@@ -49,9 +49,9 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
     ...restJobData,
-    payment: totalPay,
+    payment: totalPay || 0,
     startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : null,
-    status: adminStage, // Save adminStage as 'status'
+    status: adminStage || 'Open', // Save adminStage as 'status'
   });
   return docRef.id;
 }
@@ -60,16 +60,15 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
 /**
  * Fetches all jobs from the 'jobs' collection.
  */
-export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]> {
+export async function fetchJobs(adminStageFilter?: JobStatus | JobStatus[]): Promise<Job[]> {
   const jobsCollection = collection(db, 'jobs');
   let q = query(jobsCollection);
 
-  if (status) {
-    const statusField = 'status'; 
-    if (Array.isArray(status)) {
-        q = query(jobsCollection, where(statusField, 'in', status));
+  if (adminStageFilter) {
+    if (Array.isArray(adminStageFilter)) {
+        q = query(jobsCollection, where('status', 'in', adminStageFilter));
     } else {
-        q = query(jobsCollection, where(statusField, '==', status));
+        q = query(jobsCollection, where('status', '==', adminStageFilter));
     }
   }
 
@@ -79,7 +78,7 @@ export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]
     const data = doc.data();
     
     let payment = 0;
-    const paymentValue = data.payment || data.totalPay || data.paymentPerCleaner || 0;
+    const paymentValue = data.payment || data.totalPay;
     if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
     } else if (typeof paymentValue === 'number') {
@@ -122,7 +121,7 @@ export async function fetchJobById(id: string): Promise<Job | null> {
     const data = jobSnap.data();
     
     let payment = 0;
-    const paymentValue = data.payment || data.totalPay || data.paymentPerCleaner || 0;
+    const paymentValue = data.payment || data.totalPay;
      if (typeof paymentValue === 'string') {
         payment = parseFloat(paymentValue) || 0;
     } else if (typeof paymentValue === 'number') {
@@ -212,7 +211,16 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
      const combinedDateTime = new Date(startDate);
      combinedDateTime.setHours(hours, minutes, 0, 0);
      updateData.startDate = Timestamp.fromDate(combinedDateTime);
+  } else if (startTime) {
+    const existingDoc = await fetchJobByIdForEdit(id);
+    if (existingDoc && existingDoc.startDate) {
+        const [hours, minutes] = startTime.split(':').map(Number);
+        const combinedDateTime = new Date(existingDoc.startDate);
+        combinedDateTime.setHours(hours, minutes, 0, 0);
+        updateData.startDate = Timestamp.fromDate(combinedDateTime);
+    }
   }
+
 
   if (totalPay !== undefined) {
       updateData.payment = totalPay;

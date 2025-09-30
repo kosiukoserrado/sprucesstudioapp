@@ -53,12 +53,12 @@ export function JobCard({ job }: JobCardProps) {
                 {job.payment > 0 ? `$${job.payment.toFixed(2)}` : 'N/A'}
            </Badge>
         </div>
-         <div className="flex items-center gap-2">
+         {job.jobStatus && <div className="flex items-center gap-2">
              <Badge variant={getJobStatusVariant(job.jobStatus)} className={job.jobStatus === 'Available' ? "text-green-600 border-green-200 bg-green-50" : ""}>
                 {getJobStatusIcon(job.jobStatus)}
-                {job.jobStatus || 'Available'}
+                {job.jobStatus}
              </Badge>
-        </div>
+        </div>}
       </CardContent>
       <CardFooter>
         <Button asChild variant="outline" className="w-full">
