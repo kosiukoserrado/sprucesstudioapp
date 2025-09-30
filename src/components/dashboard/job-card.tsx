@@ -30,7 +30,7 @@ export function JobCard({ job }: JobCardProps) {
         </div>
         <div className="flex items-center gap-2 text-lg font-bold text-primary">
           <CircleDollarSign className="h-5 w-5" />
-          <span>{job.pay.toFixed(2)}</span>
+          <span>{typeof job.pay === 'number' ? job.pay.toFixed(2) : 'N/A'}</span>
         </div>
       </CardContent>
       <CardFooter>
