@@ -212,7 +212,7 @@ export default function EditJobPage() {
                         name="totalPay"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Total Payment (£)</FormLabel>
+                            <FormLabel>Total Payment ($)</FormLabel>
                             <FormControl>
                                 <Input type="number" step="0.01" {...field} />
                             </FormControl>
@@ -225,7 +225,7 @@ export default function EditJobPage() {
                         name="paymentPerCleaner"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Payment per Cleaner (£)</FormLabel>
+                            <FormLabel>Payment per Cleaner ($)</FormLabel>
                             <FormControl>
                                 <Input type="number" step="0.01" {...field} />
                             </FormControl>

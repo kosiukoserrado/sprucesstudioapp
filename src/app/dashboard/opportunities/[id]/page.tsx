@@ -165,7 +165,7 @@ export default function OpportunityDetailPage() {
                 <div className="flex-shrink-0">
                     <Badge variant="outline" className="text-lg bg-lime-100 border-lime-300 text-lime-900 py-2 px-4">
                         <CircleDollarSign className="h-5 w-5 mr-2" /> 
-                        {job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}
+                        {job.payment > 0 ? `$${job.payment.toFixed(2)}` : 'N/A'}
                     </Badge>
                 </div>
             </div>

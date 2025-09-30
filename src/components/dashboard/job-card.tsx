@@ -27,7 +27,7 @@ export function JobCard({ job }: JobCardProps) {
         <div className="flex items-center gap-2">
            <Badge variant={job.payment > 0 ? "secondary" : "outline"} className="bg-lime-200 text-lime-900">
                 <CircleDollarSign className="h-4 w-4 mr-1" />
-                {job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}
+                {job.payment > 0 ? `$${job.payment.toFixed(2)}` : 'N/A'}
            </Badge>
         </div>
          <div className="flex items-center gap-2">

@@ -105,7 +105,7 @@ export default function AdminJobsPage() {
                     <TableCell className="font-medium">{job.jobTitle}</TableCell>
                     <TableCell className="hidden md:table-cell">{job.location}</TableCell>
                      <TableCell className="hidden lg:table-cell">{job.date}</TableCell>
-                     <TableCell className="hidden lg:table-cell">£{job.payment.toFixed(2)}</TableCell>
+                     <TableCell className="hidden lg:table-cell">${job.payment.toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge variant={getStatusVariant(job.status)}>
                         {job.status}

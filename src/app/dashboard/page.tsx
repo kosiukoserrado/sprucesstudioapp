@@ -106,7 +106,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> {activeJob.time}</div>
                     <div className="flex items-center gap-2 font-bold text-primary">
                         <CircleDollarSign className="h-4 w-4" /> 
-                        £{typeof activeJob.payment === 'number' && activeJob.payment > 0 ? activeJob.payment.toFixed(2) : 'N/A'}
+                        ${typeof activeJob.payment === 'number' && activeJob.payment > 0 ? activeJob.payment.toFixed(2) : 'N/A'}
                     </div>
                 </div>
                 <p className="text-sm text-muted-foreground">{activeJob.jobDescription}</p>
