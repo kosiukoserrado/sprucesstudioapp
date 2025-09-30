@@ -7,14 +7,13 @@ import { getFirestore } from "firebase/firestore";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-// IMPORTANT: Replace with your actual Firebase config values
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyD1j3Q6kcwILHGFw2MI8L4mmRZM8DmsVx0",
   authDomain: "spruces-app-bff67.firebaseapp.com",
   projectId: "spruces-app-bff67",
   storageBucket: "spruces-app-bff67.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  messagingSenderId: "725151975956",
+  appId: "1:725151975956:web:f9041edc982c7eafe67501"
 };
 
 
