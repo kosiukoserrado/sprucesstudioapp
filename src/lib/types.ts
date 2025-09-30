@@ -1,5 +1,7 @@
 import type { Timestamp } from 'firebase/firestore';
 
+export type JobStatus = "Open" | "Closed" | "In progress" | "Completed";
+
 export type Job = {
   id: string;
   jobTitle: string;
@@ -8,9 +10,10 @@ export type Job = {
   date: string;
   time: string;
   payment: number;
-  status: string;
+  status: JobStatus;
   cleanersNeeded?: number;
   areaM2?: number;
+  assignedTo?: string; // Cleaner's user ID
 };
 
 export type ApplicationStatus = "Pending" | "Accepted" | "Rejected";

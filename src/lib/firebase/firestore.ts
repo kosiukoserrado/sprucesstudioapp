@@ -1,6 +1,6 @@
 import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Job, Application } from '@/lib/types';
+import type { Job, Application, JobStatus } from '@/lib/types';
 
 function formatDate(timestamp: Timestamp | Date): string {
     if (!timestamp) return 'Date not set';
@@ -22,9 +22,10 @@ function formatTime(timestamp: Timestamp | Date): string {
     }).format(date);
 }
 
-type CreateJobData = Omit<Job, 'id' | 'date' | 'time' | 'startDate'> & {
+type CreateJobData = Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'status'> & {
   startDate: Date;
   startTime: string;
+  status: JobStatus;
 };
 
 /**
@@ -33,10 +34,13 @@ type CreateJobData = Omit<Job, 'id' | 'date' | 'time' | 'startDate'> & {
  */
 export async function createJob(jobData: CreateJobData): Promise<string> {
   const { startDate, startTime, ...restJobData } = jobData;
-  const [hours, minutes] = startTime.split(':').map(Number);
   
-  const combinedDateTime = new Date(startDate);
-  combinedDateTime.setHours(hours, minutes, 0, 0);
+  let combinedDateTime: Date | null = null;
+  if (startDate && startTime) {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    combinedDateTime = new Date(startDate);
+    combinedDateTime.setHours(hours, minutes, 0, 0);
+  }
 
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
@@ -45,7 +49,7 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
     jobDescription: restJobData.jobDescription,
     location: restJobData.location,
     totalPay: restJobData.totalPay,
-    startDate: Timestamp.fromDate(combinedDateTime),
+    startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : null,
   });
   return docRef.id;
 }
@@ -54,9 +58,19 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
 /**
  * Fetches all jobs from the 'jobs' collection.
  */
-export async function fetchJobs(): Promise<Job[]> {
+export async function fetchJobs(status?: JobStatus | JobStatus[]): Promise<Job[]> {
   const jobsCollection = collection(db, 'jobs');
-  const jobSnapshot = await getDocs(jobsCollection);
+  let q = query(jobsCollection);
+
+  if (status) {
+    if (Array.isArray(status)) {
+        q = query(jobsCollection, where('status', 'in', status));
+    } else {
+        q = query(jobsCollection, where('status', '==', status));
+    }
+  }
+
+  const jobSnapshot = await getDocs(q);
   
   const jobs: Job[] = jobSnapshot.docs.map((doc) => {
     const data = doc.data();
@@ -79,9 +93,10 @@ export async function fetchJobs(): Promise<Job[]> {
       date: startDate ? formatDate(startDate.toDate()) : 'TBD',
       time: startDate ? formatTime(startDate.toDate()) : 'N/A',
       payment: payment,
-      status: data.status || 'Available',
+      status: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded,
       areaM2: data.areaM2,
+      assignedTo: data.assignedTo,
     };
   });
 
@@ -118,9 +133,10 @@ export async function fetchJobById(id: string): Promise<Job | null> {
         date: startDate ? formatDate(startDate.toDate()) : 'TBD',
         time: startDate ? formatTime(startDate.toDate()) : 'N/A',
         payment: payment,
-        status: data.status || 'Available',
+        status: data.status || 'Open',
         cleanersNeeded: data.cleanersNeeded,
         areaM2: data.areaM2,
+        assignedTo: data.assignedTo,
      };
   }
   
@@ -152,7 +168,7 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
       location: data.location || data.locationCity || '',
       totalPay: payment,
       paymentPerCleaner: data.paymentPerCleaner || undefined,
-      status: data.status || 'Available',
+      status: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded || 1,
       areaM2: data.areaM2 || undefined,
       startDate: startDate,
@@ -167,22 +183,27 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
  * @param id - The ID of the job to update.
  * @param jobData - The data to update.
  */
-export async function updateJob(id: string, jobData: CreateJobData): Promise<void> {
+export async function updateJob(id: string, jobData: Partial<CreateJobData>): Promise<void> {
   const { startDate, startTime, ...restJobData } = jobData;
-  const [hours, minutes] = startTime.split(':').map(Number);
   
-  const combinedDateTime = new Date(startDate);
-  combinedDateTime.setHours(hours, minutes, 0, 0);
+  let updateData: any = { ...restJobData };
+
+  if (startDate && startTime) {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const combinedDateTime = new Date(startDate);
+    combinedDateTime.setHours(hours, minutes, 0, 0);
+    updateData.startDate = Timestamp.fromDate(combinedDateTime);
+  } else if (startDate) {
+     updateData.startDate = Timestamp.fromDate(startDate);
+  }
+
+  if (restJobData.totalPay) {
+      updateData.totalPay = restJobData.totalPay;
+  }
+
 
   const jobDocRef = doc(db, 'jobs', id);
-  await updateDoc(jobDocRef, {
-    ...restJobData,
-    jobTitle: restJobData.jobTitle,
-    jobDescription: restJobData.jobDescription,
-    location: restJobData.location,
-    totalPay: restJobData.totalPay,
-    startDate: Timestamp.fromDate(combinedDateTime),
-  });
+  await updateDoc(jobDocRef, updateData);
 }
 
 

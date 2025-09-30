@@ -37,11 +37,14 @@ export default function DashboardPage() {
       
       try {
         setLoading(true);
-        const allJobs = await fetchJobs();
-        if (allJobs.length > 0) {
-            setActiveJob(allJobs[0]);
-            setOpportunities(allJobs.slice(1, 3)); 
-        }
+        // Fetch "In progress" job for "Happening Now"
+        const inProgressJobs = await fetchJobs("In progress");
+        const userInProgressJob = inProgressJobs.find(job => job.assignedTo === user.uid);
+        setActiveJob(userInProgressJob || null);
+        
+        // Fetch "Open" jobs for "Opportunities"
+        const openJobs = await fetchJobs("Open");
+        setOpportunities(openJobs.slice(0, 2)); 
         
         const userApplications = await fetchApplicationsByUserId(user.uid);
         setApplications(userApplications);

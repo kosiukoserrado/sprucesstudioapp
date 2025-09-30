@@ -32,7 +32,7 @@ export default function AdminJobsPage() {
     const getJobs = async () => {
       setLoading(true);
       try {
-        const fetchedJobs = await fetchJobs();
+        const fetchedJobs = await fetchJobs(); // Fetches all jobs regardless of status
         setJobs(fetchedJobs);
       } catch (error) {
         console.error("Error fetching jobs:", error);
@@ -42,6 +42,21 @@ export default function AdminJobsPage() {
     };
     getJobs();
   }, []);
+
+    const getStatusVariant = (status: Job['status']) => {
+        switch (status) {
+            case 'Open':
+                return 'secondary';
+            case 'In progress':
+                return 'default';
+            case 'Completed':
+                return 'outline';
+            case 'Closed':
+                return 'destructive';
+            default:
+                return 'secondary';
+        }
+    };
 
   return (
     <div className="space-y-8">
@@ -92,7 +107,7 @@ export default function AdminJobsPage() {
                      <TableCell className="hidden lg:table-cell">{job.date}</TableCell>
                      <TableCell className="hidden lg:table-cell">£{job.payment.toFixed(2)}</TableCell>
                     <TableCell>
-                      <Badge variant={job.status === "Urgent" ? "destructive" : "secondary"}>
+                      <Badge variant={getStatusVariant(job.status)}>
                         {job.status}
                       </Badge>
                     </TableCell>

@@ -38,6 +38,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { createJob } from "@/lib/firebase/firestore";
+import type { JobStatus } from "@/lib/types";
 
 const formSchema = z.object({
   jobTitle: z.string().optional(),
@@ -45,7 +46,7 @@ const formSchema = z.object({
   location: z.string().optional(),
   totalPay: z.coerce.number().optional(),
   paymentPerCleaner: z.coerce.number().optional(),
-  status: z.enum(["Available", "Urgent", "Upcoming"]).optional(),
+  status: z.enum(["Open", "Closed", "In progress", "Completed"]).optional(),
   cleanersNeeded: z.coerce.number().int().optional(),
   areaM2: z.coerce.number().optional(),
   startDate: z.date().optional(),
@@ -62,7 +63,7 @@ export default function NewJobPage() {
   const form = useForm<NewJobFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      status: "Available",
+      status: "Open",
       cleanersNeeded: 1,
       startTime: "09:00",
     },
@@ -260,9 +261,10 @@ export default function NewJobPage() {
                                 </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="Available">Available</SelectItem>
-                                    <SelectItem value="Urgent">Urgent</SelectItem>
-                                    <SelectItem value="Upcoming">Upcoming</SelectItem>
+                                    <SelectItem value="Open">Open</SelectItem>
+                                    <SelectItem value="In progress">In progress</SelectItem>
+                                    <SelectItem value="Completed">Completed</SelectItem>
+                                    <SelectItem value="Closed">Closed</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage />

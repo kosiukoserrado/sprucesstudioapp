@@ -1,52 +1,52 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { JobCard } from "@/components/dashboard/job-card";
 import { fetchJobs } from "@/lib/firebase/firestore";
 import type { Job } from "@/lib/types";
-import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Search, AlertTriangle } from "lucide-react";
+import { AlertTriangle, Smile } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/use-auth";
 
-export default function OpportunitiesPage() {
-  const [opportunities, setOpportunities] = useState<Job[]>([]);
+export default function CompletedJobsPage() {
+  const { user } = useAuth();
+  const [completedJobs, setCompletedJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const getJobs = async () => {
+    const getCompletedJobs = async () => {
+      if (!user) return;
       setLoading(true);
       setError(null);
       try {
-        // Only fetch jobs with "Open" status
-        const jobs = await fetchJobs("Open");
-        setOpportunities(jobs);
+        const jobs = await fetchJobs("Completed");
+        const userCompletedJobs = jobs.filter(job => job.assignedTo === user.uid);
+        setCompletedJobs(userCompletedJobs);
       } catch (error) {
-        console.error("Error fetching job opportunities:", error);
-        setError("Failed to fetch job opportunities. Please try again later.");
+        console.error("Error fetching completed jobs:", error);
+        setError("Failed to fetch your completed jobs. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
-    getJobs();
-  }, []);
+    if (user) {
+      getCompletedJobs();
+    }
+  }, [user]);
 
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Job Opportunities</h1>
-        <p className="text-muted-foreground">Browse and apply for jobs available in your area.</p>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">Completed Jobs</h1>
+        <p className="text-muted-foreground">A record of all the jobs you've successfully completed.</p>
       </div>
       
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input placeholder="Search by postcode, job type..." className="pl-10" />
-      </div>
-
       {loading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {[...Array(8)].map((_, i) => (
+          {[...Array(4)].map((_, i) => (
             <div key={i} className="flex flex-col space-y-3">
               <Skeleton className="h-[280px] w-full rounded-xl" />
               <div className="space-y-2">
@@ -62,16 +62,17 @@ export default function OpportunitiesPage() {
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      ) : opportunities.length > 0 ? (
+      ) : completedJobs.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {opportunities.map((job) => (
+          {completedJobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-16">
-          <h2 className="text-xl font-semibold">No Opportunities Available</h2>
-          <p className="text-muted-foreground">Please check back later for new job postings.</p>
+        <div className="text-center py-16 border-2 border-dashed rounded-lg bg-card">
+          <Smile className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <h2 className="text-xl font-semibold">No Completed Jobs Yet</h2>
+          <p className="text-muted-foreground">Once you complete jobs, they will appear here.</p>
         </div>
       )}
     </div>
