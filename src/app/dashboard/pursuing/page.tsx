@@ -42,6 +42,7 @@ export default function PursuingPage() {
         const apps = await fetchApplicationsByUserId(user.uid);
         const appsWithJobs = await Promise.all(
           apps.map(async (app) => {
+            // Use jobTitle from app if job fetch fails
             const job = await fetchJobById(app.jobId);
             return { app, job };
           })
@@ -89,14 +90,14 @@ export default function PursuingPage() {
               ))
             ) : (
               applicationsWithJobs.map(({ app, job }) => {
-                if (!job) return null;
+                const title = job?.title || app.jobTitle || 'Job not found';
                 return (
                   <TableRow key={app.id}>
                     <TableCell className="font-medium">
-                      <div className="font-semibold">{job.title}</div>
-                      <div className="text-xs text-muted-foreground md:hidden">{app.dateApplied}</div>
+                      <div className="font-semibold">{title}</div>
+                      <div className="text-xs text-muted-foreground md:hidden">{app.appliedAt}</div>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">{app.dateApplied}</TableCell>
+                    <TableCell className="hidden md:table-cell">{app.appliedAt}</TableCell>
                     <TableCell>
                       <Badge
                         variant={

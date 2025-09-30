@@ -1,4 +1,4 @@
-import { collection, getDocs, getDoc, doc, query, where } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Job, Application } from '@/lib/types';
 
@@ -34,5 +34,17 @@ export async function fetchApplicationsByUserId(userId: string): Promise<Applica
   const applicationsCollection = collection(db, 'applications');
   const q = query(applicationsCollection, where('userId', '==', userId));
   const appSnapshot = await getDocs(q);
-  return appSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Application));
+  return appSnapshot.docs.map(doc => {
+    const data = doc.data();
+    // Convert Firestore Timestamp to a readable string date format
+    const appliedAt = data.appliedAt instanceof Timestamp 
+      ? data.appliedAt.toDate().toLocaleDateString() 
+      : data.appliedAt;
+
+    return { 
+      id: doc.id, 
+      ...data,
+      appliedAt,
+    } as Application;
+  });
 }
