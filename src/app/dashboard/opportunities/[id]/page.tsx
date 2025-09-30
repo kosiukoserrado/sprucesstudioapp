@@ -143,7 +143,7 @@ export default function OpportunityDetailPage() {
                 <div className="flex items-center gap-2"><MapPin className="h-5 w-5" /> <span>{job.location}</span></div>
                 <div className="flex items-center gap-2"><Calendar className="h-5 w-5" /> <span>{job.date}</span></div>
                 <div className="flex items-center gap-2"><Clock className="h-5 w-5" /> <span>{job.time}</span></div>
-                 <div className="flex items-center gap-2 font-bold text-lg text-primary">
+                 <div className="flex items-center gap-2 font-semibold text-foreground">
                     <CircleDollarSign className="h-6 w-6" />
                     <span>{job.payment > 0 ? `£${job.payment.toFixed(2)}` : 'N/A'}</span>
                 </div>
