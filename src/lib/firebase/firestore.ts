@@ -35,7 +35,7 @@ type CreateJobData = Partial<Omit<Job, 'id' | 'date' | 'time' | 'startDate' | 'p
  * @param jobData - The data for the new job.
  */
 export async function createJob(jobData: CreateJobData): Promise<string> {
-  const { startDate, startTime, totalPay, ...restJobData } = jobData;
+  const { startDate, startTime, totalPay, adminStage, ...restJobData } = jobData;
   
   let combinedDateTime: Date | null = null;
   if (startDate && startTime) {
@@ -49,7 +49,7 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
     ...restJobData,
     payment: totalPay, // Use totalPay as payment
     startDate: combinedDateTime ? Timestamp.fromDate(combinedDateTime) : null,
-    status: jobData.adminStage, // Make sure to save the adminStage
+    status: adminStage, // Make sure to save the adminStage
   });
   return docRef.id;
 }
@@ -379,3 +379,5 @@ export async function updateUserProfile(userId: string, profileData: Partial<Use
     const userDocRef = doc(db, 'users', userId);
     await setDoc(userDocRef, profileData, { merge: true });
 }
+
+    
