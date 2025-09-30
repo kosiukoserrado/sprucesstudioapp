@@ -34,7 +34,9 @@ export function JobCard({ job }: JobCardProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">View Details & Apply</Button>
+        <Button asChild className="w-full">
+          <Link href={`/dashboard/opportunities/${job.id}`}>View Details & Apply</Link>
+        </Button>
       </CardFooter>
     </Card>
   );
