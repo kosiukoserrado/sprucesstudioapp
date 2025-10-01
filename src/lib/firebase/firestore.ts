@@ -94,7 +94,7 @@ export async function fetchJobs(adminStageFilter?: JobStatus | JobStatus[]): Pro
       location: data.locationCity || 'No location specified',
       date: startDate ? formatDate(startDate.toDate()) : 'TBD',
       time: startDate ? formatTime(startDate.toDate()) : 'N/A',
-      payment: data.payment || parseFloat(data.payPerCleaner) || 0,
+      payment: data.payment || 0,
       adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded,
       assignedTo: data.assignedTo,
@@ -129,7 +129,7 @@ export async function fetchJobById(id: string): Promise<Job | null> {
         location: data.locationCity || 'No location specified',
         date: startDate ? formatDate(startDate.toDate()) : 'TBD',
         time: startDate ? formatTime(startDate.toDate()) : 'TBD',
-        payment: data.payment || parseFloat(data.payPerCleaner) || 0,
+        payment: data.payment || 0,
         adminStage: data.status || 'Open',
         cleanersNeeded: data.cleanersNeeded,
         assignedTo: data.assignedTo,
@@ -158,7 +158,7 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
       jobTitle: data.projectName || '',
       jobDescription: data.fullDescription || data.scopeOfWorkURL ||'',
       location: data.locationCity || '',
-      totalPay: data.payment || parseFloat(data.payPerCleaner) || 0,
+      totalPay: data.payment || 0,
       paymentPerCleaner: data.paymentPerCleaner || undefined,
       adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded || 1,
@@ -179,62 +179,50 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
  * @param jobData - The data to update.
  */
 export async function updateJob(id: string, jobData: Partial<CreateJobData>): Promise<void> {
-  const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, jobTitle, location, ...restJobData } = jobData;
+    const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, jobTitle, location, ...restJobData } = jobData;
+    
+    let updateData: any = { ...restJobData };
   
-  let updateData: any = { ...restJobData };
-
-  if (startDate && startTime) {
-    const [hours, minutes] = startTime.split(':').map(Number);
-    const combinedDateTime = new Date(startDate);
-    combinedDateTime.setHours(hours, minutes, 0, 0);
-    updateData.startDate = Timestamp.fromDate(combinedDateTime);
-  } else if (startDate) {
-     const existingDoc = await fetchJobByIdForEdit(id);
-     const existingTime = existingDoc?.startTime || '00:00';
-     const [hours, minutes] = existingTime.split(':').map(Number);
-     const combinedDateTime = new Date(startDate);
-     combinedDateTime.setHours(hours, minutes, 0, 0);
-     updateData.startDate = Timestamp.fromDate(combinedDateTime);
-  } else if (startTime) {
-    const existingDoc = await fetchJobByIdForEdit(id);
-    if (existingDoc && existingDoc.startDate) {
+    // Handle date and time
+    if (startDate) {
+      const newDate = new Date(startDate); // Make sure it's a Date object
+      if (startTime) {
         const [hours, minutes] = startTime.split(':').map(Number);
-        const combinedDateTime = new Date(existingDoc.startDate);
-        combinedDateTime.setHours(hours, minutes, 0, 0);
-        updateData.startDate = Timestamp.fromDate(combinedDateTime);
+        newDate.setHours(hours, minutes, 0, 0);
+      }
+      updateData.startDate = Timestamp.fromDate(newDate);
     }
-  }
-
-  if (totalPay !== undefined) {
-    updateData.payment = totalPay;
-  }
   
-  if (adminStage) {
-    updateData.status = adminStage;
-  }
-
-  if (jobDescription !== undefined) {
-    updateData.fullDescription = jobDescription;
-  }
-
-  if (duration !== undefined) {
-    updateData.days = duration;
-  }
-
-  if (jobStatus !== undefined) {
-    updateData.displayStatus = jobStatus;
-  }
+    if (totalPay !== undefined) {
+      updateData.payment = totalPay;
+    }
+    
+    if (adminStage) {
+      updateData.status = adminStage;
+    }
   
-  if (jobTitle !== undefined) {
-    updateData.projectName = jobTitle;
-  }
-
-  if (location !== undefined) {
-    updateData.locationCity = location;
-  }
-
-  const jobDocRef = doc(db, 'jobs', id);
-  await updateDoc(jobDocRef, updateData);
+    if (jobDescription !== undefined) {
+      updateData.fullDescription = jobDescription;
+    }
+  
+    if (duration !== undefined) {
+      updateData.days = duration;
+    }
+  
+    if (jobStatus !== undefined) {
+      updateData.displayStatus = jobStatus;
+    }
+    
+    if (jobTitle !== undefined) {
+      updateData.projectName = jobTitle;
+    }
+  
+    if (location !== undefined) {
+      updateData.locationCity = location;
+    }
+  
+    const jobDocRef = doc(db, 'jobs', id);
+    await updateDoc(jobDocRef, updateData);
 }
 
 /**
