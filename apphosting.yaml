@@ -3,6 +3,7 @@
 
 # The name of the backend to deploy to.
 backend: sprucesplatform
+location: asia-southeast1
 
 runConfig:
   # Increase this value if you'd like to automatically spin up
