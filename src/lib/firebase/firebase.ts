@@ -12,7 +12,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyD1j3Q6kcwILHGFw2MI8L4mmRZM8DmsVx0",
   authDomain: "spruces-app-bff67.firebaseapp.com",
   projectId: "spruces-app-bff67",
-  storageBucket: "spruces-app-bff67.firebasestorage.app",
+  storageBucket: "spruces-app-bff67.appspot.com",
   messagingSenderId: "725151975956",
   appId: "1:725151975956:web:f9041edc982c7eafe67501"
 };

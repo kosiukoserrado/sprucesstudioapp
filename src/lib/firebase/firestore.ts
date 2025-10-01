@@ -13,9 +13,12 @@ function formatDate(timestamp: Timestamp | Date): string {
     }).format(date);
 }
 
-function formatTime(timestamp: Timestamp | Date): string {
-    if (!timestamp) return 'Time not set';
-     const date = (timestamp instanceof Timestamp) ? timestamp.toDate() : timestamp;
+function formatTime(timeString: string): string {
+    if (!timeString || !timeString.includes(':')) return 'Time not set';
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
     return new Intl.DateTimeFormat('en-US', {
         hour: 'numeric',
         minute: '2-digit',
@@ -86,15 +89,15 @@ export async function fetchJobs(adminStageFilter?: JobStatus | JobStatus[]): Pro
   const jobs: Job[] = jobSnapshot.docs.map((doc) => {
     const data = doc.data();
     
-    const startDate = data.startDate || data.createdAt;
+    const startDate = (data.startDate || data.createdAt)?.toDate();
 
     return {
       id: doc.id,
       jobTitle: data.projectName || `Project at ${data.locationCity || 'Unknown Location'}`,
       jobDescription: data.fullDescription || data.scopeOfWorkURL || 'No description provided.',
       location: data.locationCity || 'No location specified',
-      date: startDate ? formatDate(startDate.toDate()) : 'TBD',
-      time: startDate ? formatTime(startDate.toDate()) : 'N/A',
+      date: startDate ? formatDate(startDate) : 'TBD',
+      time: data.startTime ? formatTime(data.startTime) : (startDate ? new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).format(startDate) : 'N/A'),
       payment: data.payment || 0,
       adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded,
@@ -121,15 +124,15 @@ export async function fetchJobById(id: string): Promise<Job | null> {
   if (jobSnap.exists()) {
     const data = jobSnap.data();
     
-    const startDate = data.startDate || data.createdAt;
+    const startDate = (data.startDate || data.createdAt)?.toDate();
 
     return { 
         id: jobSnap.id,
         jobTitle: data.projectName || `Project at ${data.locationCity || 'Unknown Location'}`,
         jobDescription: data.fullDescription || data.scopeOfWorkURL || 'No description provided.',
         location: data.locationCity || 'No location specified',
-        date: startDate ? formatDate(startDate.toDate()) : 'TBD',
-        time: startDate ? formatTime(startDate.toDate()) : 'TBD',
+        date: startDate ? formatDate(startDate) : 'TBD',
+        time: data.startTime ? formatTime(data.startTime) : (startDate ? new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).format(startDate) : 'TBD'),
         payment: data.payment || 0,
         adminStage: data.status || 'Open',
         cleanersNeeded: data.cleanersNeeded,
@@ -164,7 +167,7 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
       adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded || 1,
       startDate: startDate,
-      startTime: startDate ? `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '09:00',
+      startTime: data.startTime || (startDate ? `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '09:00'),
       category: data.category,
       duration: data.days?.toString() || data.projectDates,
       areaM2: data.areaM2,
@@ -190,8 +193,11 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData & { p
       if (startTime) {
         const [hours, minutes] = startTime.split(':').map(Number);
         newDate.setHours(hours, minutes, 0, 0);
+         updateData.startTime = startTime;
       }
       updateData.startDate = Timestamp.fromDate(newDate);
+    } else if (startTime) {
+        updateData.startTime = startTime;
     }
   
     if (totalPay !== undefined) updateData.payment = totalPay;
@@ -202,11 +208,9 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData & { p
     if (jobTitle !== undefined) updateData.projectName = jobTitle;
     if (location !== undefined) updateData.locationCity = location;
     
-    // Only include paymentPerCleaner if it's defined and not null
-    if (paymentPerCleaner !== undefined && paymentPerCleaner !== null) {
+    // Only include paymentPerCleaner if it's defined
+    if (paymentPerCleaner !== undefined) {
       updateData.paymentPerCleaner = paymentPerCleaner;
-    } else {
-      updateData.paymentPerCleaner = null; // Explicitly set to null if it's undefined/null to avoid firestore errors
     }
   
     const jobDocRef = doc(db, 'jobs', id);
