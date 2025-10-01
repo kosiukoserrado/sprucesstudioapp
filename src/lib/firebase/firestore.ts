@@ -178,14 +178,14 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
  * @param id - The ID of the job to update.
  * @param jobData - The data to update.
  */
-export async function updateJob(id: string, jobData: Partial<CreateJobData>): Promise<void> {
-    const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, jobTitle, location, ...restJobData } = jobData;
+export async function updateJob(id: string, jobData: Partial<CreateJobData & { paymentPerCleaner?: number }>): Promise<void> {
+    const { startDate, startTime, totalPay, adminStage, jobDescription, duration, jobStatus, jobTitle, location, paymentPerCleaner, ...restJobData } = jobData;
     
-    let updateData: any = { ...restJobData };
+    const updateData: {[key: string]: any} = { ...restJobData };
   
     // Handle date and time
     if (startDate) {
-      const newDate = new Date(startDate); // Make sure it's a Date object
+      const newDate = new Date(startDate);
       if (startTime) {
         const [hours, minutes] = startTime.split(':').map(Number);
         newDate.setHours(hours, minutes, 0, 0);
@@ -193,32 +193,17 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
       updateData.startDate = Timestamp.fromDate(newDate);
     }
   
-    if (totalPay !== undefined) {
-      updateData.payment = totalPay;
-    }
-    
-    if (adminStage) {
-      updateData.status = adminStage;
-    }
-  
-    if (jobDescription !== undefined) {
-      updateData.fullDescription = jobDescription;
-    }
-  
-    if (duration !== undefined) {
-      updateData.days = duration;
-    }
-  
-    if (jobStatus !== undefined) {
-      updateData.displayStatus = jobStatus;
-    }
-    
-    if (jobTitle !== undefined) {
-      updateData.projectName = jobTitle;
-    }
-  
-    if (location !== undefined) {
-      updateData.locationCity = location;
+    if (totalPay !== undefined) updateData.payment = totalPay;
+    if (adminStage) updateData.status = adminStage;
+    if (jobDescription !== undefined) updateData.fullDescription = jobDescription;
+    if (duration !== undefined) updateData.days = duration;
+    if (jobStatus !== undefined) updateData.displayStatus = jobStatus;
+    if (jobTitle !== undefined) updateData.projectName = jobTitle;
+    if (location !== undefined) updateData.locationCity = location;
+    if (paymentPerCleaner !== undefined) {
+      updateData.paymentPerCleaner = paymentPerCleaner;
+    } else {
+      updateData.paymentPerCleaner = null; // Or some other default value that is not undefined
     }
   
     const jobDocRef = doc(db, 'jobs', id);
