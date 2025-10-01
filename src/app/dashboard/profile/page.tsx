@@ -68,7 +68,9 @@ export default function ProfilePage() {
                 setFetching(false);
             }
         };
-        loadProfile();
+        if (user) {
+            loadProfile();
+        }
     }, [user, toast]);
 
 
@@ -103,7 +105,7 @@ export default function ProfilePage() {
             if (profilePictureFile) {
                 const downloadURL = await uploadFile(profilePictureFile, `profile_pictures/${user.uid}`);
                 profileData.photoURL = downloadURL;
-                await updateAuthProfile(user, { photoURL: downloadURL });
+                await updateAuthProfile(user, { photoURL: downloadURL }); // Update auth profile
                 setAvatarUrl(downloadURL);
             }
              if (whiteCardFile) {
@@ -112,6 +114,10 @@ export default function ProfilePage() {
             }
 
             await updateUserProfile(user.uid, profileData);
+
+            if (fullName !== user.displayName) {
+                await updateAuthProfile(user, { displayName: fullName });
+            }
 
             toast({
                 title: "Profile Updated",
@@ -122,7 +128,7 @@ export default function ProfilePage() {
              toast({
                 variant: "destructive",
                 title: "Update Failed",
-                description: "There was a problem updating your profile.",
+                description: "There was a problem updating your profile. Please check the console for details.",
             });
         } finally {
             setLoading(false);

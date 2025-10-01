@@ -385,7 +385,7 @@ export async function updateUserProfile(userId: string, profileData: Partial<Use
  */
 export async function uploadFile(file: File, path: string): Promise<string> {
     const storageRef = ref(storage, path);
-    const snapshot = await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
 }
