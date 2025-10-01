@@ -9,13 +9,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
-import { User as UserIcon, LogOut, Loader2, Banknote, Briefcase } from 'lucide-react';
+import { User as UserIcon, LogOut, Loader2, Banknote, Briefcase, Calendar as CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { fetchUserProfile, updateUserProfile } from '@/lib/firebase/firestore';
+import { fetchUserProfile, updateUserProfile, uploadFile } from '@/lib/firebase/firestore';
 import type { UserProfile } from '@/lib/types';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { updateProfile as updateAuthProfile } from 'firebase/auth';
 
 export default function ProfilePage() {
-    const { user, signOut } = useAuth();
+    const { user, signOut, loading: authLoading } = useAuth();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
@@ -30,7 +35,11 @@ export default function ProfilePage() {
     const [abn, setAbn] = useState('');
     const [bsb, setBsb] = useState('');
     const [accountNumber, setAccountNumber] = useState('');
-    
+    const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
+    const [whiteCardFile, setWhiteCardFile] = useState<File | null>(null);
+    const [whiteCardExpiration, setWhiteCardExpiration] = useState<Date | undefined>(undefined);
+    const [avatarUrl, setAvatarUrl] = useState(user?.photoURL || `https://i.pravatar.cc/150?u=${user?.email}`);
+
     useEffect(() => {
         const loadProfile = async () => {
             if (!user) return;
@@ -47,6 +56,10 @@ export default function ProfilePage() {
                     setBsb(profileData.bsb || '');
                     setAccountNumber(profileData.accountNumber || '');
                     setProximity([profileData.proximity || 25]);
+                    setAvatarUrl(profileData.photoURL || user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`);
+                    if(profileData.whiteCardExpiration) {
+                        setWhiteCardExpiration(new Date(profileData.whiteCardExpiration));
+                    }
                 }
             } catch (error) {
                 console.error("Failed to load profile", error);
@@ -76,15 +89,27 @@ export default function ProfilePage() {
         try {
             const profileData: Partial<UserProfile> = {
                 fullName,
-                phoneNumber,
-                location,
-                postcode,
-                nationality,
+                phoneNumber: phoneNumber || '',
+                location: location || '',
+                postcode: postcode || '',
+                nationality: nationality || '',
                 proximity: proximity[0],
-                abn,
-                bsb,
-                accountNumber,
+                abn: abn || '',
+                bsb: bsb || '',
+                accountNumber: accountNumber || '',
+                whiteCardExpiration: whiteCardExpiration ? whiteCardExpiration.toISOString() : '',
             };
+
+            if (profilePictureFile) {
+                const downloadURL = await uploadFile(profilePictureFile, `profile_pictures/${user.uid}`);
+                profileData.photoURL = downloadURL;
+                await updateAuthProfile(user, { photoURL: downloadURL });
+                setAvatarUrl(downloadURL);
+            }
+             if (whiteCardFile) {
+                const downloadURL = await uploadFile(whiteCardFile, `white_cards/${user.uid}`);
+                profileData.whiteCardUrl = downloadURL;
+            }
 
             await updateUserProfile(user.uid, profileData);
 
@@ -93,6 +118,7 @@ export default function ProfilePage() {
                 description: "Your information has been saved successfully.",
             });
         } catch (error) {
+             console.error("Update error:", error);
              toast({
                 variant: "destructive",
                 title: "Update Failed",
@@ -102,6 +128,8 @@ export default function ProfilePage() {
             setLoading(false);
         }
     };
+
+    const isSubmitting = loading || authLoading || fetching;
 
     return (
         <div className="space-y-8">
@@ -125,12 +153,12 @@ export default function ProfilePage() {
                     </CardHeader>
                     <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                          <Avatar className="h-20 w-20">
-                            <AvatarImage src={user?.photoURL || `https://i.pravatar.cc/150?u=${user?.email}`} />
+                            <AvatarImage src={avatarUrl} />
                             <AvatarFallback>{getInitials(fullName)}</AvatarFallback>
                         </Avatar>
                         <div className="space-y-2 w-full">
                             <Label htmlFor="picture">Upload New Profile Picture</Label>
-                            <Input id="picture" type="file" className="max-w-sm" />
+                            <Input id="picture" type="file" className="max-w-sm" onChange={(e) => setProfilePictureFile(e.target.files?.[0] || null)} accept="image/*" />
                             <p className="text-xs text-muted-foreground">Recommended: Square image (e.g., 300x300px)</p>
                         </div>
                     </CardContent>
@@ -199,16 +227,45 @@ export default function ProfilePage() {
                      <CardHeader>
                         <div className="flex items-center gap-4">
                             <Briefcase className="h-6 w-6 text-muted-foreground" />
-                            <CardTitle>Business Information</CardTitle>
+                            <CardTitle>Business & Verification</CardTitle>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="abn">ABN (Australian Business Number)</Label>
-                                <Input id="abn" value={abn} onChange={e => setAbn(e.target.value)} placeholder="00 000 000 000" />
-                            </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="abn">ABN (Australian Business Number)</Label>
+                            <Input id="abn" value={abn} onChange={e => setAbn(e.target.value)} placeholder="00 000 000 000" />
                         </div>
+                         <div className="grid md:grid-cols-2 gap-6">
+                             <div className="space-y-2">
+                                <Label htmlFor="white-card">Upload White Card</Label>
+                                <Input id="white-card" type="file" onChange={(e) => setWhiteCardFile(e.target.files?.[0] || null)} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="white-card-expiration">White Card Expiration Date</Label>
+                                 <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !whiteCardExpiration && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {whiteCardExpiration ? format(whiteCardExpiration, "PPP") : <span>Pick a date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={whiteCardExpiration}
+                                            onSelect={setWhiteCardExpiration}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                         </div>
                     </CardContent>
                 </Card>
 
@@ -237,8 +294,8 @@ export default function ProfilePage() {
                 </Card>
                 
                 <div className="mt-8 flex justify-end">
-                    <Button type="submit" disabled={loading || fetching}>
-                        {(loading || fetching) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Button type="submit" disabled={isSubmitting}>
+                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {loading ? 'Saving...' : 'Finish update'}
                     </Button>
                 </div>

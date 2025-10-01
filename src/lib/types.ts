@@ -47,6 +47,8 @@ export type UserProfile = {
   bsb?: string;
   accountNumber?: string;
   photoURL?: string;
+  whiteCardUrl?: string;
+  whiteCardExpiration?: string;
 };
 
 export async function updateApplicationStatus(applicationId: string, status: ApplicationStatus): Promise<void> {

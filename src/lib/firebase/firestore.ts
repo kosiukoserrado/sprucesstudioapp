@@ -1,6 +1,7 @@
 import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc, serverTimestamp, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, storage } from './firebase';
 import type { Job, Application, JobStatus, UserProfile, ApplicationStatus, JobCategory, PublicJobStatus } from '@/lib/types';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 function formatDate(timestamp: Timestamp | Date): string {
     if (!timestamp) return 'Date not set';
@@ -159,7 +160,7 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
       jobDescription: data.fullDescription || data.scopeOfWorkURL ||'',
       location: data.locationCity || '',
       totalPay: data.payment || 0,
-      paymentPerCleaner: data.paymentPerCleaner || undefined,
+      paymentPerCleaner: data.paymentPerCleaner,
       adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded || 1,
       startDate: startDate,
@@ -200,10 +201,12 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData & { p
     if (jobStatus !== undefined) updateData.displayStatus = jobStatus;
     if (jobTitle !== undefined) updateData.projectName = jobTitle;
     if (location !== undefined) updateData.locationCity = location;
-    if (paymentPerCleaner !== undefined) {
+    
+    // Only include paymentPerCleaner if it's defined and not null
+    if (paymentPerCleaner !== undefined && paymentPerCleaner !== null) {
       updateData.paymentPerCleaner = paymentPerCleaner;
     } else {
-      updateData.paymentPerCleaner = null; // Or some other default value that is not undefined
+      updateData.paymentPerCleaner = null; // Explicitly set to null if it's undefined/null to avoid firestore errors
     }
   
     const jobDocRef = doc(db, 'jobs', id);
@@ -367,5 +370,18 @@ export async function fetchUserProfile(userId: string): Promise<UserProfile | nu
 export async function updateUserProfile(userId: string, profileData: Partial<UserProfile>): Promise<void> {
     if (!userId) return;
     const userDocRef = doc(db, 'users', userId);
+    // Use setDoc with merge to create the document if it doesn't exist, or update it if it does.
     await setDoc(userDocRef, profileData, { merge: true });
+}
+
+/**
+ * Uploads a file to Firebase Storage and returns the download URL.
+ * @param file The file to upload.
+ * @param path The path in Firebase Storage where the file will be stored.
+ */
+export async function uploadFile(file: File, path: string): Promise<string> {
+    const storageRef = ref(storage, path);
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
 }
