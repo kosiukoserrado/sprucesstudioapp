@@ -51,8 +51,8 @@ export async function createJob(jobData: CreateJobData): Promise<string> {
   const jobsCollection = collection(db, 'jobs');
   const docRef = await addDoc(jobsCollection, {
     ...restJobData,
-    jobTitle: jobTitle || null,
-    location: location || null,
+    projectName: jobTitle || null,
+    locationCity: location || null,
     fullDescription: jobDescription || '',
     days: duration || null,
     displayStatus: jobStatus || 'Available',
@@ -89,17 +89,17 @@ export async function fetchJobs(adminStageFilter?: JobStatus | JobStatus[]): Pro
 
     return {
       id: doc.id,
-      jobTitle: data.jobTitle || `Project at ${data.location || 'Unknown Location'}`,
-      jobDescription: data.fullDescription || 'No description provided.',
-      location: data.location || 'No location specified',
+      jobTitle: data.projectName || `Project at ${data.locationCity || 'Unknown Location'}`,
+      jobDescription: data.fullDescription || data.scopeOfWorkURL || 'No description provided.',
+      location: data.locationCity || 'No location specified',
       date: startDate ? formatDate(startDate.toDate()) : 'TBD',
       time: startDate ? formatTime(startDate.toDate()) : 'N/A',
-      payment: data.payment || 0,
+      payment: data.payment || parseFloat(data.payPerCleaner) || 0,
       adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded,
       assignedTo: data.assignedTo,
       category: data.category,
-      duration: data.days?.toString(),
+      duration: data.days?.toString() || data.projectDates,
       areaM2: data.areaM2,
       jobStatus: data.displayStatus,
     };
@@ -124,17 +124,17 @@ export async function fetchJobById(id: string): Promise<Job | null> {
 
     return { 
         id: jobSnap.id,
-        jobTitle: data.jobTitle || `Project at ${data.location || 'Unknown Location'}`,
-        jobDescription: data.fullDescription || 'No description provided.',
-        location: data.location || 'No location specified',
+        jobTitle: data.projectName || `Project at ${data.locationCity || 'Unknown Location'}`,
+        jobDescription: data.fullDescription || data.scopeOfWorkURL || 'No description provided.',
+        location: data.locationCity || 'No location specified',
         date: startDate ? formatDate(startDate.toDate()) : 'TBD',
         time: startDate ? formatTime(startDate.toDate()) : 'TBD',
-        payment: data.payment || 0,
+        payment: data.payment || parseFloat(data.payPerCleaner) || 0,
         adminStage: data.status || 'Open',
         cleanersNeeded: data.cleanersNeeded,
         assignedTo: data.assignedTo,
         category: data.category,
-        duration: data.days?.toString(),
+        duration: data.days?.toString() || data.projectDates,
         areaM2: data.areaM2,
         jobStatus: data.displayStatus,
      };
@@ -155,17 +155,17 @@ export async function fetchJobByIdForEdit(id: string): Promise<any | null> {
     
     return {
       id: jobSnap.id,
-      jobTitle: data.jobTitle || '',
-      jobDescription: data.fullDescription || '',
-      location: data.location || '',
-      totalPay: data.payment || 0,
+      jobTitle: data.projectName || '',
+      jobDescription: data.fullDescription || data.scopeOfWorkURL ||'',
+      location: data.locationCity || '',
+      totalPay: data.payment || parseFloat(data.payPerCleaner) || 0,
       paymentPerCleaner: data.paymentPerCleaner || undefined,
       adminStage: data.status || 'Open',
       cleanersNeeded: data.cleanersNeeded || 1,
       startDate: startDate,
       startTime: startDate ? `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '09:00',
       category: data.category,
-      duration: data.days?.toString(),
+      duration: data.days?.toString() || data.projectDates,
       areaM2: data.areaM2,
       jobStatus: data.displayStatus,
     };
@@ -226,11 +226,11 @@ export async function updateJob(id: string, jobData: Partial<CreateJobData>): Pr
   }
   
   if (jobTitle !== undefined) {
-    updateData.jobTitle = jobTitle;
+    updateData.projectName = jobTitle;
   }
 
   if (location !== undefined) {
-    updateData.location = location;
+    updateData.locationCity = location;
   }
 
   const jobDocRef = doc(db, 'jobs', id);
