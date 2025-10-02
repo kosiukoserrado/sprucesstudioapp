@@ -18,10 +18,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { updateProfile as updateAuthProfile } from 'firebase/auth';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { app } from '@/lib/firebase/firebase';
-
-const storage = getStorage(app);
+import { getSignedURL } from '@/app/actions';
 
 export default function ProfilePage() {
     const { user, signOut, loading: authLoading } = useAuth();
@@ -80,14 +77,31 @@ export default function ProfilePage() {
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | null>>) => {
         if (e.target.files && e.target.files[0]) {
             setFile(e.target.files[0]);
+             if (e.target.id === "picture") {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setAvatarUrl(reader.result as string);
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
         }
     };
     
     const handleFileUpload = async (file: File, path: string): Promise<string> => {
-        const storageRef = ref(storage, path);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-        return downloadURL;
+        const { signedUrl, publicUrl } = await getSignedURL({
+            filePath: path,
+            contentType: file.type,
+        });
+
+        await fetch(signedUrl, {
+            method: 'PUT',
+            body: file,
+            headers: {
+                'Content-Type': file.type,
+            },
+        });
+
+        return publicUrl;
     }
 
 
