@@ -18,7 +18,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { updateProfile as updateAuthProfile } from 'firebase/auth';
-import { getSignedURL } from '@/app/actions';
+import { storage } from '@/lib/firebase/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function ProfilePage() {
     const { user, signOut, loading: authLoading } = useAuth();
@@ -76,32 +77,23 @@ export default function ProfilePage() {
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | null>>) => {
         if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
+            const file = e.target.files[0];
+            setFile(file);
              if (e.target.id === "picture") {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     setAvatarUrl(reader.result as string);
                 };
-                reader.readAsDataURL(e.target.files[0]);
+                reader.readAsDataURL(file);
             }
         }
     };
     
     const handleFileUpload = async (file: File, path: string): Promise<string> => {
-        const { signedUrl, publicUrl } = await getSignedURL({
-            filePath: path,
-            contentType: file.type,
-        });
-
-        await fetch(signedUrl, {
-            method: 'PUT',
-            body: file,
-            headers: {
-                'Content-Type': file.type,
-            },
-        });
-
-        return publicUrl;
+        const storageRef = ref(storage, path);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+        return downloadURL;
     }
 
 
@@ -159,7 +151,7 @@ export default function ProfilePage() {
              toast({
                 variant: "destructive",
                 title: "Update Failed",
-                description: "There was a problem updating your profile. Please check the console for details.",
+                description: "There was a problem updating your profile. Please check your browser console for details.",
             });
         } finally {
             setLoading(false);
