@@ -91,8 +91,8 @@ export default function ProfilePage() {
     
     const handleFileUpload = async (file: File, path: string): Promise<string> => {
         const storageRef = ref(storage, path);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
         return downloadURL;
     }
 
@@ -126,13 +126,13 @@ export default function ProfilePage() {
             };
 
             if (profilePictureFile) {
-                const downloadURL = await handleFileUpload(profilePictureFile, `profile_pictures/${user.uid}/${profilePictureFile.name}`);
+                const downloadURL = await handleFileUpload(profilePictureFile, `profile_pictures/${user.uid}`);
                 profileData.photoURL = downloadURL;
                 await updateAuthProfile(user, { photoURL: downloadURL }); // Update auth profile
                 setAvatarUrl(downloadURL);
             }
              if (whiteCardFile) {
-                const downloadURL = await handleFileUpload(whiteCardFile, `white_cards/${user.uid}/${whiteCardFile.name}`);
+                const downloadURL = await handleFileUpload(whiteCardFile, `white_cards/${user.uid}`);
                 profileData.whiteCardUrl = downloadURL;
             }
 
@@ -333,3 +333,4 @@ export default function ProfilePage() {
         </div>
     );
 }
+    
