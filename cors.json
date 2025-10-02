@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["https://sprucesplatform--spruces-app-bff67.asia-southeast1.hosted.app", "http://localhost:9002"],
+    "origin": ["https://sprucesplatform--spruces-app-bff67.asia-southeast1.hosted.app", "http://localhost:9002", "https://6000-firebase-studio-1759196502643.cluster-w5vd22wh.cloudworkstations.dev"],
     "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "responseHeader": [
       "Content-Type",
