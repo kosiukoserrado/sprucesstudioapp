@@ -1,7 +1,6 @@
 import { collection, getDocs, getDoc, doc, query, where, Timestamp, addDoc, updateDoc, serverTimestamp, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
-import { db, storage } from './firebase';
+import { db } from './firebase';
 import type { Job, Application, JobStatus, UserProfile, ApplicationStatus, JobCategory, PublicJobStatus } from '@/lib/types';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 function formatDate(timestamp: Timestamp | Date): string {
     if (!timestamp) return 'Date not set';
@@ -322,7 +321,7 @@ export async function fetchAllApplications(): Promise<Application[]> {
 
   const applications: Application[] = appSnapshot.docs.map(doc => {
     const data = doc.data();
-    const appliedAt = data.appliedAt;
+    const appliedAt = data.applied.toDate();
 
     return { 
       id: doc.id, 
@@ -376,16 +375,4 @@ export async function updateUserProfile(userId: string, profileData: Partial<Use
     const userDocRef = doc(db, 'users', userId);
     // Use setDoc with merge to create the document if it doesn't exist, or update it if it does.
     await setDoc(userDocRef, profileData, { merge: true });
-}
-
-/**
- * Uploads a file to Firebase Storage and returns the download URL.
- * @param file The file to upload.
- * @param path The path in Firebase Storage where the file will be stored.
- */
-export async function uploadFile(file: File, path: string): Promise<string> {
-    const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
-    return downloadURL;
 }

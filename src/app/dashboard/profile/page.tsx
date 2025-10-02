@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import { User as UserIcon, LogOut, Loader2, Banknote, Briefcase, Calendar as CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { fetchUserProfile, updateUserProfile, uploadFile } from '@/lib/firebase/firestore';
+import { fetchUserProfile, updateUserProfile } from '@/lib/firebase/firestore';
 import type { UserProfile } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -73,6 +73,25 @@ export default function ProfilePage() {
         }
     }, [user, toast]);
 
+    const handleFileUpload = async (file: File, path: string): Promise<string> => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('path', path);
+
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'File upload failed');
+        }
+
+        const { downloadURL } = await response.json();
+        return downloadURL;
+    }
+
 
     const getInitials = (name: string) => {
         if (!name) return 'U';
@@ -103,13 +122,13 @@ export default function ProfilePage() {
             };
 
             if (profilePictureFile) {
-                const downloadURL = await uploadFile(profilePictureFile, `profile_pictures/${user.uid}`);
+                const downloadURL = await handleFileUpload(profilePictureFile, `profile_pictures/${user.uid}`);
                 profileData.photoURL = downloadURL;
                 await updateAuthProfile(user, { photoURL: downloadURL }); // Update auth profile
                 setAvatarUrl(downloadURL);
             }
              if (whiteCardFile) {
-                const downloadURL = await uploadFile(whiteCardFile, `white_cards/${user.uid}`);
+                const downloadURL = await handleFileUpload(whiteCardFile, `white_cards/${user.uid}`);
                 profileData.whiteCardUrl = downloadURL;
             }
 

@@ -9,7 +9,8 @@ import {
   updateProfile,
   User,
   getAuth, // Import getAuth
-  UserCredential
+  UserCredential,
+  IdTokenResult,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/firebase';
 
@@ -20,6 +21,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   auth: typeof auth; // Expose auth object
+  getIdToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,6 +55,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     await firebaseSignOut(auth);
   };
+  
+  const getIdToken = async () => {
+    if (auth.currentUser) {
+      return await auth.currentUser.getIdToken();
+    }
+    return null;
+  };
 
   const value = {
     user,
@@ -61,6 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signIn,
     signOut,
     auth, // Provide auth in context
+    getIdToken,
   };
 
   return (
