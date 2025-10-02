@@ -90,7 +90,7 @@ export default function LoginPage() {
   }
   
   return (
-    <div className="w-full lg:grid lg:min-h-[100vh] lg:grid-cols-2">
+    <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto grid w-full max-w-md gap-6">
           <div className="grid gap-2 text-center">
@@ -144,7 +144,7 @@ export default function LoginPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                    <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name-signup">Full Name</Label>
                         <Input id="name-signup" placeholder="Alex Doe" required value={signupName} onChange={e => setSignupName(e.target.value)} />
@@ -158,7 +158,7 @@ export default function LoginPage() {
                       <Label htmlFor="email-signup">Email</Label>
                       <Input id="email-signup" type="email" placeholder="m@example.com" required value={signupEmail} onChange={e => setSignupEmail(e.target.value)} />
                     </div>
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="password-signup">Password</Label>
                         <Input id="password-signup" type="password" required value={signupPassword} onChange={e => setSignupPassword(e.target.value)} />
@@ -168,7 +168,7 @@ export default function LoginPage() {
                         <Input id="confirm-password-signup" type="password" required value={signupConfirmPassword} onChange={e => setSignupConfirmPassword(e.target.value)} />
                       </div>
                     </div>
-                     <div className="grid sm:grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="location-signup">Location</Label>
                         <Input id="location-signup" placeholder="e.g., Southport" required value={signupLocation} onChange={e => setSignupLocation(e.target.value)} />

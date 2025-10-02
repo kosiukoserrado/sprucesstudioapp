@@ -89,7 +89,7 @@ export default function DashboardPage() {
             {loading ? (
                 <div className="space-y-4">
                     <Skeleton className="h-6 w-3/4" />
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Skeleton className="h-5 w-full" />
                         <Skeleton className="h-5 w-full" />
                         <Skeleton className="h-5 w-full" />
@@ -102,7 +102,7 @@ export default function DashboardPage() {
                 <div>
                     <h3 className="text-xl font-semibold">{activeJob.jobTitle}</h3>
                 </div>
-                <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> {activeJob.location}</p>
                     <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> {activeJob.date} at {activeJob.time}</div>
                     <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> {activeJob.duration ? `${activeJob.duration} days` : 'N/A'}</div>
@@ -179,14 +179,14 @@ export default function DashboardPage() {
         {loading ? (
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="flex flex-col space-y-3">
-                    <Skeleton className="h-[200px] w-full rounded-xl" />
+                    <Skeleton className="h-[220px] w-full rounded-xl" />
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-[250px]" />
                         <Skeleton className="h-4 w-[200px]" />
                     </div>
                 </div>
                  <div className="flex flex-col space-y-3">
-                    <Skeleton className="h-[200px] w-full rounded-xl" />
+                    <Skeleton className="h-[220px] w-full rounded-xl" />
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-[250px]" />
                         <Skeleton className="h-4 w-[200px]" />

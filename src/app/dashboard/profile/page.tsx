@@ -202,7 +202,7 @@ export default function ProfilePage() {
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="fullName">Full Name</Label>
                                 <Input id="fullName" value={fullName} onChange={e => setFullName(e.target.value)} />
@@ -213,7 +213,7 @@ export default function ProfilePage() {
                                 <p className="text-xs text-muted-foreground">Email cannot be changed here.</p>
                             </div>
                         </div>
-                         <div className="grid md:grid-cols-2 gap-6">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="phoneNumber">Phone Number</Label>
                                 <Input id="phoneNumber" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="0775006585"/>
@@ -224,7 +224,7 @@ export default function ProfilePage() {
                                 <p className="text-xs text-muted-foreground">Your current location for job matching.</p>
                             </div>
                         </div>
-                         <div className="grid md:grid-cols-2 gap-6">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="postcode">Postcode</Label>
                                 <Input id="postcode" value={postcode} onChange={e => setPostcode(e.target.value)} placeholder="4215" />
@@ -263,7 +263,7 @@ export default function ProfilePage() {
                             <Label htmlFor="abn">ABN (Australian Business Number)</Label>
                             <Input id="abn" value={abn} onChange={e => setAbn(e.target.value)} placeholder="00 000 000 000" />
                         </div>
-                         <div className="grid md:grid-cols-2 gap-6">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div className="space-y-2">
                                 <Label htmlFor="white-card">Upload White Card</Label>
                                 <Input id="white-card" type="file" onChange={(e) => handleFileChange(e, setWhiteCardFile)} />
@@ -301,14 +301,14 @@ export default function ProfilePage() {
 
                 <Card>
                      <CardHeader>
-                        <div className="flex items-center gap_4">
+                        <div className="flex items-center gap-4">
                             <Banknote className="h-6 w-6 text-muted-foreground" />
                             <CardTitle>Bank Details</CardTitle>
                              <CardDescription>This information is kept secure and is only used for job payments.</CardDescription>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="bsb">BSB</Label>
                                 <Input id="bsb" value={bsb} onChange={e => setBsb(e.target.value)} placeholder="000-000" />

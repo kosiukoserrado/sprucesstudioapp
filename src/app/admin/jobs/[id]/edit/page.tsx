@@ -124,17 +124,17 @@ export default function EditJobPage() {
             <Skeleton className="h-10 w-48" />
             <Card>
                 <CardContent className="pt-6 space-y-8">
-                     <div className="grid md:grid-cols-2 gap-8">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <Skeleton className="h-12 w-full" />
                         <Skeleton className="h-12 w-full" />
                     </div>
                      <Skeleton className="h-24 w-full" />
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <Skeleton className="h-12 w-full" />
                         <Skeleton className="h-12 w-full" />
                         <Skeleton className="h-12 w-full" />
                       </div>
-                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <Skeleton className="h-12 w-full" />
                         <Skeleton className="h-12 w-full" />
                         <Skeleton className="h-12 w-full" />
@@ -162,7 +162,7 @@ export default function EditJobPage() {
         <CardContent className="pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <FormField
                     control={form.control}
                     name="jobTitle"
@@ -209,7 +209,7 @@ export default function EditJobPage() {
                     )}
                 />
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                      <FormField
                         control={form.control}
                         name="category"
@@ -263,7 +263,7 @@ export default function EditJobPage() {
                     />
                 </div>
                 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <FormField
                         control={form.control}
                         name="totalPay"
@@ -306,7 +306,7 @@ export default function EditJobPage() {
                     />
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                      <FormField
                         control={form.control}
                         name="startDate"
@@ -319,7 +319,7 @@ export default function EditJobPage() {
                                 <Button
                                     variant={"outline"}
                                     className={cn(
-                                    "pl-3 text-left font-normal",
+                                    "w-full pl-3 text-left font-normal",
                                     !field.value && "text-muted-foreground"
                                     )}
                                 >
@@ -383,7 +383,7 @@ export default function EditJobPage() {
                     />
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                      <FormField
                         control={form.control}
                         name="adminStage"

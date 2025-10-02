@@ -34,26 +34,26 @@ export function JobCard({ job }: JobCardProps) {
   }
   
   return (
-    <Card className="flex flex-col justify-between bg-card">
+    <Card className="flex flex-col justify-between bg-card h-full">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-card-foreground">{job.jobTitle}</CardTitle>
+        <CardTitle className="text-lg font-semibold text-card-foreground line-clamp-2">{job.jobTitle}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4" />
+      <CardContent className="space-y-3 text-sm text-muted-foreground flex-grow">
+        <div className="flex items-start gap-2">
+          <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
           <span>{job.location}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
+        <div className="flex items-start gap-2">
+          <Calendar className="h-4 w-4 mt-0.5 shrink-0" />
           <span>Starts: {job.date}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pt-2">
            <Badge variant={job.payment > 0 ? "secondary" : "outline"} className="bg-lime-200 text-lime-900">
                 <CircleDollarSign className="h-4 w-4 mr-1" />
                 {job.payment > 0 ? `$${job.payment.toFixed(2)}` : 'N/A'}
            </Badge>
         </div>
-         {job.jobStatus && <div className="flex items-center gap-2">
+         {job.jobStatus && <div className="flex items-center gap-2 pt-1">
              <Badge variant={getJobStatusVariant(job.jobStatus)} className={job.jobStatus === 'Available' ? "text-green-600 border-green-200 bg-green-50" : ""}>
                 {getJobStatusIcon(job.jobStatus)}
                 {job.jobStatus}
