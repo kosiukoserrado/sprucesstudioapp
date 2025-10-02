@@ -18,8 +18,6 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { updateProfile as updateAuthProfile } from 'firebase/auth';
-import { storage } from '@/lib/firebase/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function ProfilePage() {
     const { user, signOut, loading: authLoading } = useAuth();
@@ -90,12 +88,23 @@ export default function ProfilePage() {
     };
     
     const handleFileUpload = async (file: File, path: string): Promise<string> => {
-        const storageRef = ref(storage, path);
-        const snapshot = await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(snapshot.ref);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('path', path);
+
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'File upload failed');
+        }
+
+        const { downloadURL } = await response.json();
         return downloadURL;
     }
-
 
     const getInitials = (name: string) => {
         if (!name) return 'U';
@@ -151,7 +160,7 @@ export default function ProfilePage() {
              toast({
                 variant: "destructive",
                 title: "Update Failed",
-                description: "There was a problem updating your profile. Please check your browser console for details.",
+                description: (error as Error).message || "There was a problem updating your profile.",
             });
         } finally {
             setLoading(false);

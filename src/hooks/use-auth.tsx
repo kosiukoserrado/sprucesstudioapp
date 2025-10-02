@@ -58,7 +58,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const getIdToken = async (): Promise<string | null> => {
     if (auth.currentUser) {
-      return await auth.currentUser.getIdToken();
+      // Force refresh the token to ensure it's not expired.
+      return await auth.currentUser.getIdToken(true);
     }
     return null;
   };
