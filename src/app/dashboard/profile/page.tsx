@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,9 +18,13 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { updateProfile as updateAuthProfile } from 'firebase/auth';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { app } from '@/lib/firebase/firebase';
+
+const storage = getStorage(app);
 
 export default function ProfilePage() {
-    const { user, signOut, loading: authLoading, getIdToken } = useAuth();
+    const { user, signOut, loading: authLoading } = useAuth();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
@@ -38,7 +42,7 @@ export default function ProfilePage() {
     const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
     const [whiteCardFile, setWhiteCardFile] = useState<File | null>(null);
     const [whiteCardExpiration, setWhiteCardExpiration] = useState<Date | undefined>(undefined);
-    const [avatarUrl, setAvatarUrl] = useState(user?.photoURL || `https://i.pravatar.cc/150?u=${user?.email}`);
+    const [avatarUrl, setAvatarUrl] = useState(user?.photoURL || '');
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -56,7 +60,7 @@ export default function ProfilePage() {
                     setBsb(profileData.bsb || '');
                     setAccountNumber(profileData.accountNumber || '');
                     setProximity([profileData.proximity || 25]);
-                    setAvatarUrl(profileData.photoURL || user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`);
+                    setAvatarUrl(profileData.photoURL || user.photoURL || '');
                     if(profileData.whiteCardExpiration) {
                         setWhiteCardExpiration(new Date(profileData.whiteCardExpiration));
                     }
@@ -73,27 +77,16 @@ export default function ProfilePage() {
         }
     }, [user, toast]);
 
-    const handleFileUpload = async (file: File, path: string): Promise<string> => {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('path', path);
-
-        const token = await getIdToken();
-
-        const response = await fetch('/api/upload', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'File upload failed');
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | null>>) => {
+        if (e.target.files && e.target.files[0]) {
+            setFile(e.target.files[0]);
         }
-
-        const { downloadURL } = await response.json();
+    };
+    
+    const handleFileUpload = async (file: File, path: string): Promise<string> => {
+        const storageRef = ref(storage, path);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
         return downloadURL;
     }
 
@@ -188,7 +181,7 @@ export default function ProfilePage() {
                         </Avatar>
                         <div className="space-y-2 w-full">
                             <Label htmlFor="picture">Upload New Profile Picture</Label>
-                            <Input id="picture" type="file" className="max-w-sm" onChange={(e) => setProfilePictureFile(e.target.files?.[0] || null)} accept="image/*" />
+                            <Input id="picture" type="file" className="max-w-sm" onChange={(e) => handleFileChange(e, setProfilePictureFile)} accept="image/*" />
                             <p className="text-xs text-muted-foreground">Recommended: Square image (e.g., 300x300px)</p>
                         </div>
                     </CardContent>
@@ -268,7 +261,7 @@ export default function ProfilePage() {
                          <div className="grid md:grid-cols-2 gap-6">
                              <div className="space-y-2">
                                 <Label htmlFor="white-card">Upload White Card</Label>
-                                <Input id="white-card" type="file" onChange={(e) => setWhiteCardFile(e.target.files?.[0] || null)} />
+                                <Input id="white-card" type="file" onChange={(e) => handleFileChange(e, setWhiteCardFile)} />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="white-card-expiration">White Card Expiration Date</Label>

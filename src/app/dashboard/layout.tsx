@@ -62,7 +62,7 @@ export default function DashboardLayout({
         </SidebarContent>
         <SidebarFooter className="flex items-center gap-2">
            <Avatar className="group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10">
-              <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} alt={user.email || 'User'} />
+              <AvatarImage src={user.photoURL || undefined} alt={user.email || 'User'} />
               <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
             </Avatar>
            <div className="flex flex-col group-data-[collapsible=icon]:hidden">
@@ -85,7 +85,7 @@ export default function DashboardLayout({
               <span className="sr-only">Toggle notifications</span>
             </Button>
              <Avatar>
-              <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} alt={user.email || 'User'} />
+              <AvatarImage src={user.photoURL || undefined} alt={user.email || 'User'} />
               <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
             </Avatar>
           </div>
