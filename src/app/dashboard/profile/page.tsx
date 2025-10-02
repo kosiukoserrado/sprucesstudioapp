@@ -18,6 +18,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { updateProfile as updateAuthProfile } from 'firebase/auth';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function ProfilePage() {
     const { user, signOut, loading: authLoading } = useAuth();
@@ -88,21 +89,10 @@ export default function ProfilePage() {
     };
     
     const handleFileUpload = async (file: File, path: string): Promise<string> => {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('path', path);
-
-        const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'File upload failed');
-        }
-
-        const { downloadURL } = await response.json();
+        const storage = getStorage();
+        const storageRef = ref(storage, path);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
         return downloadURL;
     }
 
@@ -135,13 +125,13 @@ export default function ProfilePage() {
             };
 
             if (profilePictureFile) {
-                const downloadURL = await handleFileUpload(profilePictureFile, `profile_pictures/${user.uid}`);
+                const downloadURL = await handleFileUpload(profilePictureFile, `profile_pictures/${user.uid}/${profilePictureFile.name}`);
                 profileData.photoURL = downloadURL;
                 await updateAuthProfile(user, { photoURL: downloadURL }); // Update auth profile
                 setAvatarUrl(downloadURL);
             }
              if (whiteCardFile) {
-                const downloadURL = await handleFileUpload(whiteCardFile, `white_cards/${user.uid}`);
+                const downloadURL = await handleFileUpload(whiteCardFile, `white_cards/${user.uid}/${whiteCardFile.name}`);
                 profileData.whiteCardUrl = downloadURL;
             }
 
@@ -311,7 +301,7 @@ export default function ProfilePage() {
 
                 <Card>
                      <CardHeader>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap_4">
                             <Banknote className="h-6 w-6 text-muted-foreground" />
                             <CardTitle>Bank Details</CardTitle>
                              <CardDescription>This information is kept secure and is only used for job payments.</CardDescription>
@@ -342,6 +332,4 @@ export default function ProfilePage() {
         </div>
     );
 }
-    
-
     
