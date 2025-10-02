@@ -3,7 +3,6 @@ import { initializeApp, getApps, getApp, FirebaseOptions } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getAdminApp } from '@/lib/firebase/firebase-admin';
 
 // Your web app's Firebase configuration
 const firebaseConfig: FirebaseOptions = {
@@ -22,7 +21,4 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Initialize Firebase Admin SDK for the server
-const adminApp = getAdminApp();
-
-export { app, auth, db, storage, adminApp, firebaseConfig };
+export { app, auth, db, storage, firebaseConfig };
