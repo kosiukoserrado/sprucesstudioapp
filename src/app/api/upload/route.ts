@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         }
         
         // Security check: ensure user is uploading to their own path
-        if (!path.includes(userId)) {
+        if (!path.startsWith(`profile_pictures/${userId}`) && !path.startsWith(`white_cards/${userId}`)) {
              return NextResponse.json({ error: 'Unauthorized: You can only upload to your own directory.' }, { status: 403 });
         }
         

@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await firebaseSignOut(auth);
   };
   
-  const getIdToken = async () => {
+  const getIdToken = async (): Promise<string | null> => {
     if (auth.currentUser) {
       return await auth.currentUser.getIdToken();
     }

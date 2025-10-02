@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { updateProfile as updateAuthProfile } from 'firebase/auth';
 
 export default function ProfilePage() {
-    const { user, signOut, loading: authLoading } = useAuth();
+    const { user, signOut, loading: authLoading, getIdToken } = useAuth();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
@@ -78,8 +78,13 @@ export default function ProfilePage() {
         formData.append('file', file);
         formData.append('path', path);
 
+        const token = await getIdToken();
+
         const response = await fetch('/api/upload', {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData,
         });
 
@@ -122,13 +127,13 @@ export default function ProfilePage() {
             };
 
             if (profilePictureFile) {
-                const downloadURL = await handleFileUpload(profilePictureFile, `profile_pictures/${user.uid}`);
+                const downloadURL = await handleFileUpload(profilePictureFile, `profile_pictures/${user.uid}/${profilePictureFile.name}`);
                 profileData.photoURL = downloadURL;
                 await updateAuthProfile(user, { photoURL: downloadURL }); // Update auth profile
                 setAvatarUrl(downloadURL);
             }
              if (whiteCardFile) {
-                const downloadURL = await handleFileUpload(whiteCardFile, `white_cards/${user.uid}`);
+                const downloadURL = await handleFileUpload(whiteCardFile, `white_cards/${user.uid}/${whiteCardFile.name}`);
                 profileData.whiteCardUrl = downloadURL;
             }
 
