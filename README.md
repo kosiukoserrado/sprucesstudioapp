@@ -39,6 +39,17 @@ The application is divided into two main user roles: Admin and Cleaner.
 - **Firestore:** A NoSQL database used to store all application data, including `jobs`, `users` (profiles), and `applications`.
 - **Firebase Storage:** Used for storing user-uploaded files, primarily cleaner profile pictures and verification documents like White Cards.
 
+## Firebase Project Configuration
+
+Here are the details for the Firebase project connected to this application. This information is used in `src/lib/firebase/firebase.ts` to initialize the Firebase SDK.
+
+- **Project ID:** `spruces-app-bff67`
+- **API Key:** `AIzaSyD1j3Q6kcwILHGFw2MI8L4mmRZM8DmsVx0`
+- **Auth Domain:** `spruces-app-bff67.firebaseapp.com`
+- **Storage Bucket:** `spruces-app-bff67.appspot.com`
+- **Messaging Sender ID:** `725151975956`
+- **App ID:** `1:725151975956:web:f9041edc982c7eafe67501`
+
 ## Current Known Issues
 
 - **Image Upload Functionality:** This is the most significant known issue. When a cleaner attempts to upload a profile picture on the "My Profile" page, the operation fails due to a **CORS (Cross-Origin Resource Sharing) policy error**. The browser blocks the upload request because the web app's domain is not on the Firebase Storage bucket's list of allowed origins.
