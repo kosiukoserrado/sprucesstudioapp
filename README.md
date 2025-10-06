@@ -44,6 +44,7 @@ The application is divided into two main user roles: Admin and Cleaner.
 Here are the details for the Firebase project connected to this application. This information is used in `src/lib/firebase/firebase.ts` to initialize the Firebase SDK.
 
 - **Project ID:** `spruces-app-bff67`
+- **Web App Name:** `sprucesplatform`
 - **API Key:** `AIzaSyD1j3Q6kcwILHGFw2MI8L4mmRZM8DmsVx0`
 - **Auth Domain:** `spruces-app-bff67.firebaseapp.com`
 - **Storage Bucket:** `spruces-app-bff67.appspot.com`
